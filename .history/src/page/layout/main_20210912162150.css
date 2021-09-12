@@ -1,0 +1,9 @@
+ .logo {
+    height: 64px;
+    line-height: 64;
+    text-align: center;
+  }
+  
+  .site-layout .site-layout-background {
+    background: #fff;
+  }

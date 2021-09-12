@@ -1,0 +1,18 @@
+ .logo {
+    height: 64px;
+    line-height: 64px;
+    text-align: center;
+  }
+  
+  .header {
+    background: #f0f2f5;
+    padding: 0;
+  }
+
+  .side-right .content {
+    margin: 0 16px;
+  }
+
+  .side-right .bread-crumb {
+    margin: 0 16px;
+  }
