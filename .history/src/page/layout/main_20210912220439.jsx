@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Menu, Breadcrumb,Dropdown,Avatar  } from 'antd';
+import { Layout, Menu, Breadcrumb,Dropdown,Button,message } from 'antd';
 import {
   PieChartOutlined,
   UserOutlined,
@@ -60,23 +60,11 @@ class MainLayout extends React.Component {
         </Sider>
         <Layout className="side-right">
           <Header className="header">
-              <div className="header-left fl">
-                <Dropdown overlay={menu}>
-                    <a className="ant-dropdown-link2" onClick={e => e.preventDefault()}>
-                    本地存储 <DownOutlined />
-                    </a>
-                </Dropdown>
-              </div>
-              <div className="header-right fr">
-              <Dropdown overlay={menu}>
-                    <div>
-                        <Avatar size={50} icon={<UserOutlined />} />
-                        醉丶春风 <DownOutlined />
-                    </div>
-                </Dropdown>
-              </div>
-              <div className="clearboth"></div>
-            
+            <Dropdown overlay={menu}>
+                <a className="ant-dropdown-link" onClick={e => e.preventDefault()}>
+                本地存储 <DownOutlined />
+                </a>
+            </Dropdown>
           </Header>
           <Breadcrumb className="bread-crumb">
               <Breadcrumb.Item>User</Breadcrumb.Item>

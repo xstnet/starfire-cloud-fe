@@ -1,25 +1,24 @@
 import React from 'react';
-import { Layout, Menu, Breadcrumb,Dropdown,Avatar  } from 'antd';
+import { Layout, Menu, Breadcrumb,Dropdown,DownOutlined,Button } from 'antd';
 import {
   PieChartOutlined,
   UserOutlined,
-  DownOutlined,
 } from '@ant-design/icons';
 import './main.less';
 
-const { Header, Content, Sider } = Layout;
+const { Header, Content, Footer, Sider } = Layout;
 const { SubMenu } = Menu;
 
 const menu = (
-    <Menu >
-      <Menu.Item key="1">
-        本地存储
+    <Menu onClick={handleMenuClick}>
+      <Menu.Item key="1" icon={<UserOutlined />}>
+        1st menu item
       </Menu.Item>
-      <Menu.Item key="2">
-        阿里云OSS
+      <Menu.Item key="2" icon={<UserOutlined />}>
+        2nd menu item
       </Menu.Item>
-      <Menu.Item key="3">
-        腾讯云OSS
+      <Menu.Item key="3" icon={<UserOutlined />}>
+        3rd menu item
       </Menu.Item>
     </Menu>
   );
@@ -36,7 +35,7 @@ class MainLayout extends React.Component {
       <Layout className="main" style={{ minHeight: '100vh' }}>
         <Sider className="side-left" theme="light" >
           <div className="logo">
-              星火云盘
+              logo logo
           </div>
           <Menu defaultSelectedKeys={['all']} defaultOpenKeys={["my-file"]} mode="inline">
             <SubMenu key="my-file" icon={<UserOutlined />} title="我的文件">
@@ -60,23 +59,11 @@ class MainLayout extends React.Component {
         </Sider>
         <Layout className="side-right">
           <Header className="header">
-              <div className="header-left fl">
-                <Dropdown overlay={menu}>
-                    <a className="ant-dropdown-link2" onClick={e => e.preventDefault()}>
-                    本地存储 <DownOutlined />
-                    </a>
-                </Dropdown>
-              </div>
-              <div className="header-right fr">
-              <Dropdown overlay={menu}>
-                    <div>
-                        <Avatar size={50} icon={<UserOutlined />} />
-                        醉丶春风 <DownOutlined />
-                    </div>
-                </Dropdown>
-              </div>
-              <div className="clearboth"></div>
-            
+            <Dropdown overlay={menu}>
+                <Button>
+                    Button <DownOutlined />
+                </Button>
+            </Dropdown>
           </Header>
           <Breadcrumb className="bread-crumb">
               <Breadcrumb.Item>User</Breadcrumb.Item>
@@ -87,6 +74,7 @@ class MainLayout extends React.Component {
               Bill is a cat.
             </div>
           </Content>
+          {/* <Footer style={{ textAlign: 'center' }}>Ant Design ©2018 Created by Ant UED</Footer> */}
         </Layout>
       </Layout>
     );

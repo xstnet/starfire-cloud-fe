@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Menu, Breadcrumb,Dropdown,Avatar  } from 'antd';
+import { Layout, Menu, Breadcrumb,Dropdown,Button,message } from 'antd';
 import {
   PieChartOutlined,
   UserOutlined,
@@ -67,14 +67,7 @@ class MainLayout extends React.Component {
                     </a>
                 </Dropdown>
               </div>
-              <div className="header-right fr">
-              <Dropdown overlay={menu}>
-                    <div>
-                        <Avatar size={50} icon={<UserOutlined />} />
-                        醉丶春风 <DownOutlined />
-                    </div>
-                </Dropdown>
-              </div>
+              <div className="header-right fr"></div>
               <div className="clearboth"></div>
             
           </Header>

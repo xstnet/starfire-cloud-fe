@@ -68,12 +68,8 @@ class MainLayout extends React.Component {
                 </Dropdown>
               </div>
               <div className="header-right fr">
-              <Dropdown overlay={menu}>
-                    <div>
-                        <Avatar size={50} icon={<UserOutlined />} />
-                        醉丶春风 <DownOutlined />
-                    </div>
-                </Dropdown>
+                <Avatar size={50} icon={<UserOutlined />} />
+                醉丶春风
               </div>
               <div className="clearboth"></div>
             
