@@ -1,9 +1,10 @@
 import React from 'react';
-import { Layout, Menu, Breadcrumb,Dropdown,Avatar  } from 'antd';
+import { Layout, Menu, Breadcrumb,Dropdown,Avatar,Table,Button,Space,Upload  } from 'antd';
 import {
   PieChartOutlined,
   UserOutlined,
   DownOutlined,
+  UploadOutlined,
 } from '@ant-design/icons';
 import './main.less';
 
@@ -24,14 +25,71 @@ const menu = (
     </Menu>
   );
 
+  const columns = [
+    {
+      title: '名称',
+      dataIndex: 'name',
+    },
+    {
+      title: '大小',
+      dataIndex: 'size',
+    },
+    {
+      title: '修改时间',
+      dataIndex: 'updateAt',
+    },
+  ];
+
+  const data = [
+      {
+        key: 1,
+        updateAt: "2021-09-13 23:35",
+        size: "25.0KB",
+        name: "readme.md",
+        
+      },
+      {
+        key: 2,
+        updateAt: "2021-09-13 23:35",
+        size: "-",
+        name: "音乐",
+      },
+      {
+        key: 3,
+        updateAt: "2021-09-13 23:35",
+        size: "35.0MB",
+        name: "参考文档.doc",
+      }
+  ];
+
 class MainLayout extends React.Component {
   state = {
-    collapsed: false,
+    selectedRowKeys: [], // Check here to configure the default column
+  };
+
+  start = () => {
+    // ajax request after empty completing
+    setTimeout(() => {
+      this.setState({
+        selectedRowKeys: [],
+      });
+    }, 1000);
+  };
+
+  onSelectChange = selectedRowKeys => {
+    console.log('selectedRowKeys changed: ', selectedRowKeys);
+    this.setState({ selectedRowKeys });
   };
 
 
   render() {
-    const { collapsed } = this.state;
+    const { selectedRowKeys } = this.state;
+    const rowSelection = {
+      selectedRowKeys,
+      onChange: this.onSelectChange,
+    };
+    const hasSelected = selectedRowKeys.length > 0;
+
     return (
       <Layout className="main" style={{ minHeight: '100vh' }}>
         <Sider className="side-left" theme="light" >
@@ -61,30 +119,53 @@ class MainLayout extends React.Component {
         <Layout className="side-right">
           <Header className="header">
               <div className="header-left fl">
-                <Dropdown overlay={menu}>
+                <Space>
+                  <Upload>
+                  <Button type="primary" icon={<UploadOutlined />} size="middle">
+                  上传
+                </Button>
+                  </Upload>
+                
+                <Button type="primary" icon={<UploadOutlined />} size="middle">
+                  创建文件夹
+                </Button>
+                </Space>
+                
+              </div>
+              <div className="header-right fr">
+                <ul>
+                  <li className="fl">
+                  <Dropdown overlay={menu}>
                     <a className="ant-dropdown-link2" onClick={e => e.preventDefault()}>
                     本地存储 <DownOutlined />
                     </a>
                 </Dropdown>
-              </div>
-              <div className="header-right fr">
-              <Dropdown overlay={menu}>
-                    <div>
-                        <Avatar size={50} icon={<UserOutlined />} />
-                        醉丶春风 <DownOutlined />
-                    </div>
-                </Dropdown>
+                  </li>
+                  <li className="fl">
+                  <Dropdown overlay={menu}>
+                      <div>
+                          <Avatar size={50} icon={<UserOutlined />} />
+                          醉丶春风 <DownOutlined />
+                      </div>
+                  </Dropdown>
+                  </li>
+                </ul>
+              
+               
+                
               </div>
               <div className="clearboth"></div>
             
           </Header>
           <Breadcrumb className="bread-crumb">
-              <Breadcrumb.Item>User</Breadcrumb.Item>
-              <Breadcrumb.Item>Bill</Breadcrumb.Item>
+              <Breadcrumb.Item>全部文件</Breadcrumb.Item>
+              <Breadcrumb.Item>文件夹1</Breadcrumb.Item>
           </Breadcrumb>
           <Content className="content">
-            <div  style={{ padding: 24, minHeight: 360 }}>
-              Bill is a cat.
+            <div>
+              <div>
+                <Table rowSelection={rowSelection} columns={columns} dataSource={data} />
+              </div>
             </div>
           </Content>
         </Layout>
