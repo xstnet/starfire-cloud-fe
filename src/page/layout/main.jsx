@@ -164,7 +164,7 @@ class MainLayout extends React.Component {
           <Content className="content">
             <div>
               <div>
-                <Table rowSelection={rowSelection} columns={columns} dataSource={data} />
+                <Table pagination={false} rowSelection={rowSelection} columns={columns} dataSource={data} />
               </div>
             </div>
           </Content>
