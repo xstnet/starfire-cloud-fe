@@ -1,15 +1,20 @@
 import React from 'react';
 import { Layout, Menu, Breadcrumb,Dropdown,Avatar,Table,Button,Space,Upload  } from 'antd';
+import {stopEventBubble} from '../../util/util'
 import {
   PieChartOutlined,
   UserOutlined,
   DownOutlined,
   UploadOutlined,
+  ShareAltOutlined,
+  DownloadOutlined,
+  EllipsisOutlined,
 } from '@ant-design/icons';
 import './main.less';
 
 const { Header, Content, Sider } = Layout;
 const { SubMenu } = Menu;
+const { Column, ColumnGroup } = Table;
 
 const menu = (
     <Menu >
@@ -25,6 +30,18 @@ const menu = (
     </Menu>
   );
 
+  const fileOperation = (
+    <Menu>
+      <Menu.Item key="3">移动</Menu.Item>
+      <Menu.Item key="5">删除</Menu.Item>
+      <Menu.Item key="6">重命名</Menu.Item>
+    </Menu>
+  )
+
+ 
+
+ 
+
   const columns = [
     {
       title: '名称',
@@ -35,6 +52,23 @@ const menu = (
       dataIndex: 'size',
     },
     {
+      title: '操作',
+      dataIndex: 'action',
+      render: (text, record, index) => {
+        return  <span onClick={e => stopEventBubble(e)}>
+          <Space>
+          <a onClick={e => stopEventBubble(e)} title="分享" href="22"><ShareAltOutlined /></a>
+          <a onClick={e => stopEventBubble(e)} title="下载" href="22"><DownloadOutlined /></a>
+          <Dropdown overlay={fileOperation} trigger={['click']}>
+            <a title="更多" className="ant-dropdown-link" onClick={e => stopEventBubble(e)}>
+            <EllipsisOutlined />
+            </a>
+          </Dropdown>
+        </Space>
+        </span>
+      },
+    },
+    {
       title: '修改时间',
       dataIndex: 'updateAt',
     },
@@ -43,6 +77,7 @@ const menu = (
   const data = [
       {
         key: 1,
+        action:1,
         updateAt: "2021-09-13 23:35",
         size: "25.0KB",
         name: "readme.md",
@@ -50,12 +85,14 @@ const menu = (
       },
       {
         key: 2,
+        action:1,
         updateAt: "2021-09-13 23:35",
         size: "-",
         name: "音乐",
       },
       {
         key: 3,
+        action:1,
         updateAt: "2021-09-13 23:35",
         size: "35.0MB",
         name: "参考文档.doc",
@@ -76,10 +113,45 @@ class MainLayout extends React.Component {
     }, 1000);
   };
 
+  test(){
+    console.log('test');
+  }
+
+ 
+
   onSelectChange = selectedRowKeys => {
     console.log('selectedRowKeys changed: ', selectedRowKeys);
     this.setState({ selectedRowKeys });
   };
+
+  onRow = record => {
+      return {
+        onClick: e => {
+          console.log(e);
+          console.log(record);
+          let index = this.state.selectedRowKeys.indexOf(record.key);
+          if (index >= 0) {
+            this.state.selectedRowKeys.splice(index, 1)
+          } else {
+            this.state.selectedRowKeys.push(record.key)
+          }
+          this.setState({selectedRowKeys:[...this.state.selectedRowKeys]})
+        },
+        onMouseEnter : e => {
+            console.log(323)
+        }
+      }
+  }
+
+  // onRow={record => {
+  //   return {
+  //     onClick: event => {}, // 点击行
+  //     onDoubleClick: event => {},
+  //     onContextMenu: event => {},
+  //     onMouseEnter: event => {}, // 鼠标移入行
+  //     onMouseLeave: event => {},
+  //   };
+  // }}
 
 
   render() {
@@ -150,9 +222,6 @@ class MainLayout extends React.Component {
                   </Dropdown>
                   </li>
                 </ul>
-              
-               
-                
               </div>
               <div className="clearboth"></div>
             
@@ -160,11 +229,13 @@ class MainLayout extends React.Component {
           <Breadcrumb className="bread-crumb">
               <Breadcrumb.Item>全部文件</Breadcrumb.Item>
               <Breadcrumb.Item>文件夹1</Breadcrumb.Item>
+              <Breadcrumb.Item>文件夹2</Breadcrumb.Item>
+              <Breadcrumb.Item>文件夹3</Breadcrumb.Item>
           </Breadcrumb>
           <Content className="content">
             <div>
               <div>
-                <Table pagination={false} rowSelection={rowSelection} columns={columns} dataSource={data} />
+                <Table onRow={this.onRow} size="middle" pagination={false} rowSelection={rowSelection} columns={columns} dataSource={data} />
               </div>
             </div>
           </Content>
