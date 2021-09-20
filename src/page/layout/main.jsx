@@ -1,6 +1,6 @@
 import React from 'react';
-import { Layout, Menu, Breadcrumb,Dropdown,Avatar,Table,Button,Space,Upload  } from 'antd';
-import {stopEventBubble} from '../../util/util'
+import { Layout, Menu, Breadcrumb, Dropdown, Avatar, Table, Button, Space, Upload, Radio } from 'antd';
+import { stopEventBubble } from '../../util/util'
 import {
   PieChartOutlined,
   UserOutlined,
@@ -9,6 +9,11 @@ import {
   ShareAltOutlined,
   DownloadOutlined,
   EllipsisOutlined,
+  FolderAddOutlined,
+  DeleteOutlined,
+  StarFilled,
+  StarOutlined,
+  EditOutlined,
 } from '@ant-design/icons';
 import './main.less';
 
@@ -17,91 +22,103 @@ const { SubMenu } = Menu;
 const { Column, ColumnGroup } = Table;
 
 const menu = (
-    <Menu >
-      <Menu.Item key="1">
-        本地存储
-      </Menu.Item>
-      <Menu.Item key="2">
-        阿里云OSS
-      </Menu.Item>
-      <Menu.Item key="3">
-        腾讯云OSS
-      </Menu.Item>
-    </Menu>
-  );
+  <Menu >
+    <Menu.Item key="1">
+      本地存储
+    </Menu.Item>
+    <Menu.Item key="2">
+      阿里云OSS
+    </Menu.Item>
+    <Menu.Item key="3">
+      腾讯云OSS
+    </Menu.Item>
+  </Menu>
+);
 
-  const fileOperation = (
-    <Menu>
-      <Menu.Item key="3">移动</Menu.Item>
-      <Menu.Item key="5">删除</Menu.Item>
-      <Menu.Item key="6">重命名</Menu.Item>
-    </Menu>
-  )
+const fileOperation = (
+  <Menu>
+    <Menu.Item key="move">移动</Menu.Item>
+    <Menu.Item key="delete">删除</Menu.Item>
+    <Menu.Item key="rename">重命名</Menu.Item>
+    <Menu.Item key="favorite">收藏</Menu.Item>
+  </Menu>
+)
 
- 
 
- 
-
-  const columns = [
-    {
-      title: '名称',
-      dataIndex: 'name',
-    },
-    {
-      title: '大小',
-      dataIndex: 'size',
-    },
-    {
-      title: '操作',
-      dataIndex: 'action',
-      render: (text, record, index) => {
-        return  <span onClick={e => stopEventBubble(e)}>
-          <Space>
+const columns = [
+  {
+    title: '名称',
+    dataIndex: 'name',
+  },
+  {
+    title: '大小',
+    dataIndex: 'size',
+  },
+  {
+    title: '操作',
+    dataIndex: 'action',
+    render: (text, record, index) => {
+      return <span onClick={e => stopEventBubble(e)}>
+        <Space>
           <a onClick={e => stopEventBubble(e)} title="分享" href="22"><ShareAltOutlined /></a>
           <a onClick={e => stopEventBubble(e)} title="下载" href="22"><DownloadOutlined /></a>
           <Dropdown overlay={fileOperation} trigger={['click']}>
             <a title="更多" className="ant-dropdown-link" onClick={e => stopEventBubble(e)}>
-            <EllipsisOutlined />
+              <EllipsisOutlined />
             </a>
           </Dropdown>
         </Space>
-        </span>
-      },
+      </span>
     },
-    {
-      title: '修改时间',
-      dataIndex: 'updateAt',
-    },
-  ];
+  },
+  {
+    title: '修改时间',
+    dataIndex: 'updateAt',
+  },
+];
 
-  const data = [
-      {
-        key: 1,
-        action:1,
-        updateAt: "2021-09-13 23:35",
-        size: "25.0KB",
-        name: "readme.md",
-        
-      },
-      {
-        key: 2,
-        action:1,
-        updateAt: "2021-09-13 23:35",
-        size: "-",
-        name: "音乐",
-      },
-      {
-        key: 3,
-        action:1,
-        updateAt: "2021-09-13 23:35",
-        size: "35.0MB",
-        name: "参考文档.doc",
-      }
-  ];
+const data = [
+  {
+    key: 1,
+    action: 1,
+    updateAt: "2021-09-13 23:35",
+    size: "25.0KB",
+    name: "readme.md",
+
+  },
+  {
+    key: 2,
+    action: 1,
+    updateAt: "2021-09-13 23:35",
+    size: "-",
+    name: "音乐",
+  },
+  {
+    key: 3,
+    action: 1,
+    updateAt: "2021-09-13 23:35",
+    size: "35.0MB",
+    name: "参考文档.doc",
+  }
+];
 
 class MainLayout extends React.Component {
   state = {
-    selectedRowKeys: [], // Check here to configure the default column
+    selectedRowKeys: [],
+    dirStack: [
+      {
+        name: '文件夹1',
+        id: 1,
+      },
+      {
+        name: '文件夹2',
+        id: 1,
+      },
+      {
+        name: '文件夹3',
+        id: 1,
+      }
+    ],
   };
 
   start = () => {
@@ -113,11 +130,11 @@ class MainLayout extends React.Component {
     }, 1000);
   };
 
-  test(){
+  test() {
     console.log('test');
   }
 
- 
+
 
   onSelectChange = selectedRowKeys => {
     console.log('selectedRowKeys changed: ', selectedRowKeys);
@@ -125,22 +142,22 @@ class MainLayout extends React.Component {
   };
 
   onRow = record => {
-      return {
-        onClick: e => {
-          console.log(e);
-          console.log(record);
-          let index = this.state.selectedRowKeys.indexOf(record.key);
-          if (index >= 0) {
-            this.state.selectedRowKeys.splice(index, 1)
-          } else {
-            this.state.selectedRowKeys.push(record.key)
-          }
-          this.setState({selectedRowKeys:[...this.state.selectedRowKeys]})
-        },
-        onMouseEnter : e => {
-            console.log(323)
+    return {
+      onClick: e => {
+        console.log(e);
+        console.log(record);
+        let index = this.state.selectedRowKeys.indexOf(record.key);
+        if (index >= 0) {
+          this.state.selectedRowKeys.splice(index, 1)
+        } else {
+          this.state.selectedRowKeys.push(record.key)
         }
+        this.setState({ selectedRowKeys: [...this.state.selectedRowKeys] })
+      },
+      onMouseEnter: e => {
+        console.log(323)
       }
+    }
   }
 
   // onRow={record => {
@@ -152,6 +169,27 @@ class MainLayout extends React.Component {
   //     onMouseLeave: event => {},
   //   };
   // }}
+
+  renderDirStack() {
+    return [
+      <Breadcrumb.Item key='all'>全部文件</Breadcrumb.Item>,
+      ...this.state.dirStack.map(item => {
+        return <Breadcrumb.Item key={item.id}>{item.name}</Breadcrumb.Item>
+      })
+    ]
+  }
+
+  renderBreadCrumb() {
+    console.log('keylen:', this.state.selectedRowKeys.length);
+    if (this.state.selectedRowKeys.length > 0) {
+      console.log(222);
+      return <Breadcrumb.Item key='selected'>已选择{this.state.selectedRowKeys.length}个文件/文件夹 </Breadcrumb.Item>
+    }
+
+    console.log(1111);
+
+    return this.renderDirStack()
+  }
 
 
   render() {
@@ -166,7 +204,7 @@ class MainLayout extends React.Component {
       <Layout className="main" style={{ minHeight: '100vh' }}>
         <Sider className="side-left" theme="light" >
           <div className="logo">
-              星火云盘
+            星火云盘
           </div>
           <Menu defaultSelectedKeys={['all']} defaultOpenKeys={["my-file"]} mode="inline">
             <SubMenu key="my-file" icon={<UserOutlined />} title="我的文件">
@@ -190,48 +228,58 @@ class MainLayout extends React.Component {
         </Sider>
         <Layout className="side-right">
           <Header className="header">
-              <div className="header-left fl">
-                <Space>
-                  <Upload>
-                  <Button type="primary" icon={<UploadOutlined />} size="middle">
+            <div className="header-left fl">
+              <Dropdown overlay={menu}>
+                <a className="ant-dropdown-link2" onClick={e => e.preventDefault()}>
+                  本地存储 <DownOutlined />
+                </a>
+              </Dropdown>
+
+            </div>
+            <div className="header-right fr">
+              <ul>
+                <li className="fl">
+                  <Dropdown overlay={menu}>
+                    <div>
+                      <Avatar size={50} icon={<UserOutlined />} />
+                      醉丶春风 <DownOutlined />
+                    </div>
+                  </Dropdown>
+                </li>
+              </ul>
+            </div>
+            <div className="clearboth"></div>
+
+          </Header>
+
+          <div className="action-bar">
+            <Space>
+              <Upload>
+                <Button type="primary" icon={<UploadOutlined />} size="middle">
                   上传
                 </Button>
-                  </Upload>
-                
-                <Button type="primary" icon={<UploadOutlined />} size="middle">
-                  创建文件夹
-                </Button>
-                </Space>
-                
+              </Upload>
+
+              <Button type="primary" icon={<FolderAddOutlined />} size="middle">
+                新建
+              </Button>
+
+              <div className={`action-file-bar ${this.state.selectedRowKeys.length > 0 ? '' : 'hide'}`}>
+                <Button className={`${this.state.selectedRowKeys.length === 1 ? '' : 'hide'}`} type="primary" icon={<DownloadOutlined />} size="middle">下载 </Button>
+                <Button className={`${this.state.selectedRowKeys.length > 1 ? '' : 'hide'}`} type="primary" icon={<DownloadOutlined />} size="middle">打包下载 </Button>
+                <Button className={`${this.state.selectedRowKeys.length === 1 ? '' : 'hide'}`} type="primary" icon={<ShareAltOutlined />} size="middle">分享 </Button>
+                <Button type="primary" icon={<DeleteOutlined />} size="middle">删除 </Button>
+                <Button className={`${this.state.selectedRowKeys.length === 1 ? '' : 'hide'}`} type="primary" icon={<EditOutlined />} size="middle">重命名 </Button>
+                <Button type="primary" icon={<FolderAddOutlined />} size="middle">移动 </Button>
+                <Button type="primary" icon={<StarOutlined />} size="middle">收藏 </Button>
               </div>
-              <div className="header-right fr">
-                <ul>
-                  <li className="fl">
-                  <Dropdown overlay={menu}>
-                    <a className="ant-dropdown-link2" onClick={e => e.preventDefault()}>
-                    本地存储 <DownOutlined />
-                    </a>
-                </Dropdown>
-                  </li>
-                  <li className="fl">
-                  <Dropdown overlay={menu}>
-                      <div>
-                          <Avatar size={50} icon={<UserOutlined />} />
-                          醉丶春风 <DownOutlined />
-                      </div>
-                  </Dropdown>
-                  </li>
-                </ul>
-              </div>
-              <div className="clearboth"></div>
-            
-          </Header>
+            </Space>
+          </div>
+
           <Breadcrumb className="bread-crumb">
-              <Breadcrumb.Item>全部文件</Breadcrumb.Item>
-              <Breadcrumb.Item>文件夹1</Breadcrumb.Item>
-              <Breadcrumb.Item>文件夹2</Breadcrumb.Item>
-              <Breadcrumb.Item>文件夹3</Breadcrumb.Item>
+            {this.renderBreadCrumb()}
           </Breadcrumb>
+
           <Content className="content">
             <div>
               <div>

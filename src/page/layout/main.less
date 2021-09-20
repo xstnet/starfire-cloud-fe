@@ -45,7 +45,32 @@
         background: @sideColor;
         padding: 0 10px;
         box-shadow: @shadow-1-down;
+        box-shadow: 1px 1px 8px #c9c9c9;
         text-align: left;
+      }
+
+      .action-bar {
+        margin: 0 16px;
+        margin-top: 10px;
+
+        .action-file-bar {
+          @borderColor: #bae7ff;
+          button {
+            margin-left: 1px;
+            // border: 1px @borderColor solid;
+            // border-right-width: 0;
+            border-radius: 0px;
+            
+
+            &:last-child {
+              // border-right-width: 1px;
+              border-radius: 0 2px 2px 0;
+            }
+            &:first-child {
+              border-radius: 2px 0 0 2px;
+            }
+          }
+        }
       }
 
       .content {
