@@ -1,6 +1,7 @@
 import React from 'react';
 import { Layout, Menu, Breadcrumb, Dropdown, Avatar, Table, Button, Space, Upload, Radio } from 'antd';
 import { stopEventBubble } from '../../util/util'
+import Cache from '../../util/cache'
 import {
   PieChartOutlined,
   UserOutlined,
@@ -120,6 +121,14 @@ class MainLayout extends React.Component {
       }
     ],
   };
+
+  componentWillMount() {
+    console.log('componentWillMount');
+        if (parseInt(Cache.get('isLogin')) !== 1) {
+          this.props.history.replace('/login');
+          return false;
+        }
+  }
 
   start = () => {
     // ajax request after empty completing

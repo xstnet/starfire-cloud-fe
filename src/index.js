@@ -1,7 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
+import {HashRouter} from 'react-router-dom';
 import {Provider} from 'react-redux';
+import App from './App';
 import store from './store';
 import reportWebVitals from './reportWebVitals';
 
@@ -14,7 +15,9 @@ import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <Provider store={store}>
+    <HashRouter>
 			<App />
+    </HashRouter>
 	</Provider>,
   document.getElementById('root')
 );

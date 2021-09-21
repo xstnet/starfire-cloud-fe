@@ -2,7 +2,8 @@ import React from 'react';
 // import { Button } from 'antd';
 import './App.css';
 import MainLayout from './page/layout/main'
-import Login from './page/login/index'
+import Login from './page/login/index';
+import {Route, Switch  } from 'react-router-dom';
 
 // const App = () => (
 //   <div className="App">
@@ -11,7 +12,10 @@ import Login from './page/login/index'
 // );
 const App = () => (
   <div className="App">
-    <Login></Login>
+    <Switch>
+      <Route path="/login" component={Login}/>
+      <Route path="/" component={MainLayout}/>
+    </Switch>
   </div>
 );
 
