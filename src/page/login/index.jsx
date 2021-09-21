@@ -1,5 +1,7 @@
 import React from 'react';
-import { Form, Input, Button, Checkbox,message } from 'antd';
+import { connect } from 'react-redux';
+import { Form, Input, Button, Checkbox, message } from 'antd';
+import { login } from '../../api/user';
 import Cache from '../../util/cache'
 import './index.less';
 
@@ -11,19 +13,25 @@ class Login extends React.Component {
     }
 
     handleSubmit = (values) => {
-        console.log(this.props);
-        console.log('Success:', values);
-        this.setState({submitDisabled: true});
-        setTimeout(() => {
-            this.setState({submitDisabled: false})
-        }, 2000);
+        this.setState({ submitDisabled: true });
+        message.loading({ content: '登录中...', key: 'logining' });
 
-        message.loading({ content: '登录中...', key:'logining' });
-        setTimeout(() => {
-          message.success({ content: '登录成功!', key:'logining', duration: 2 });
+
+        let result = login(values);
+
+        result.then(response => {
+            console.log('succccccc', response);
+
+            this.setState({ submitDisabled: false });
+            message.success({ content: '登录成功...', key: 'logining', duration: 2 });
             Cache.set('isLogin', 1);
             this.props.history.replace('/');
-        }, 2000);
+        }, err => {
+            this.setState({ submitDisabled: false });
+            message.error({ content: err.message, key: 'logining', duration: 2 });
+
+            console.log('eeeeee', err)
+        });
     };
 
     render() {
@@ -68,4 +76,15 @@ class Login extends React.Component {
     }
 }
 
-export default Login;
+const mapStateToProps = (state, ownProps) => ({
+    // home: state.Home,
+});
+
+const mapDispatchToProps = (dispatch, ownProps) => ({
+    // getRoomList: homeId => dispatch(getRoomList(homeId)),
+});
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Login);

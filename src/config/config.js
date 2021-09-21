@@ -1,6 +1,8 @@
-export default Config = {
+ const  Config = {
         CODE_OK: 0,
         CODE_RELOGIN: 27149,
 
-        BASE_URL: "127.0.0.1:3000"
+        BASE_URL: "/api/v1"
 }
+
+export default Config;

@@ -1,3 +1,5 @@
+export const saveUserInfo = 'SAVE_USER_INFO';
+
 export const deleteFiles = 'DELETE_FILES';
 export const moveFiles = 'DELETE_FILES';
 export const renameFile = 'DELETE_FILES';

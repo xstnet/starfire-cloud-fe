@@ -13,9 +13,6 @@ class Http {
 		return new Promise((resolve, reject) => {
 			axios.get(url, {
 				params: params,
-				// headers: {
-				// 	Authorization: 'Bearer ' + Cache.getToken(),
-				// }
 			}, ).then(res => {
                 if (res.data.code === Config.CODE_RELOGIN) {
 					Cache.remove('token');
@@ -34,17 +31,17 @@ class Http {
 
 	static post(url, params = {}, tips={showMsg:true, loading: true}) {
 		return new Promise((resolve, reject) => {
-			axios.post(url, qs.stringify(params), {
+			axios.post(url, JSON.stringify(params), {
 					headers: {
 						Authorization: 'Bearer ' + Cache.getToken(),
 					}
 				}
 			).then(res => {
-				if (res.data.code === Config.CODE_NEED_LOGIN) {
+				if (res.data.code === Config.CODE_RELOGIN) {
 					Cache.remove('token');
 					Cache.remove('userInfo');
 					Cache.set('isLogin', false);
-					message.error(res.data.message, 1.5).then(Control.go('/login'));
+					// message.error(res.data.message, 1.5).then(Control.go('/login'));
 					throw res.data.message;
 				}
 				switch (res.data.code) {
@@ -57,7 +54,7 @@ class Http {
 						if (tips.showMsg) {
 							message.error(res.data.message);
 						}
-						return Promise.reject('Action Error')
+						return reject(res.data)
 				}
 				resolve(res.data)
 			}).catch(err => {
