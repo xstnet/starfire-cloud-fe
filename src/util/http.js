@@ -22,7 +22,7 @@ class Http {
 					Cache.remove('userInfo');
 					Cache.set('isLogin', false);
 					message.error(res.data.message, 1.5);
-					Control.go('/login');
+					// Control.go('/login');
 					throw res.data.message;
 				}
 				resolve(res.data)
