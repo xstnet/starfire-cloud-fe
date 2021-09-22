@@ -1,2 +1,11 @@
 // 阻止事件冒泡
 export const stopEventBubble = e => {e.preventDefault();e.stopPropagation()}
+
+export const renderSize = sizeRaw =>{
+    let sizeUnit = ["B","KB","MB","GB","TB","PB","EB","ZB","YB"];
+    let index = Math.floor(Math.log(sizeRaw)/Math.log(1024));
+
+    let size =sizeRaw/Math.pow(1024,index).toFixed(2);
+
+    return `${size}${sizeUnit[index]}`;
+}
