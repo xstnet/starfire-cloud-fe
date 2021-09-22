@@ -26,5 +26,12 @@ export const login1 =  params => {
 }
 
 export const login =  params => {
-    return Http.post('/login', params, {showMsg:false});
+    let result = Http.post('/login', params, {showMsg:false});
+	result.then(response => {
+		Cache.set('isLogin', 1);
+		Cache.set('token', response.data.token);
+		Cache.setJson('userInfo', response.data.profile);
+	});
+
+	return result;
 }

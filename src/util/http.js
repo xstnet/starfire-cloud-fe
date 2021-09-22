@@ -40,7 +40,7 @@ class Http {
 				if (res.data.code === Config.CODE_RELOGIN) {
 					Cache.remove('token');
 					Cache.remove('userInfo');
-					Cache.set('isLogin', false);
+					Cache.set('isLogin', 0);
 					// message.error(res.data.message, 1.5).then(Control.go('/login'));
 					throw res.data.message;
 				}

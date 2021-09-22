@@ -2,31 +2,17 @@
 import * as Actions from '../../Actions';
 
 const initState = {
-	tabNavList: [
-		{ title: '首页', key: '/', closable: false },
-	],
-	activeKey: '/',
-	menuList: [],
-	userInfo: {
-	},
+	fileList: [],
 };
 
 const File = (state = initState, action) => {
 	switch (action.type) {
-		// case Actions.getTodos:
-		// 	return state;
-		// case Actions.addTodo:
-		// 	return {
-		// 		...state,
-		// 		todoList: [
-		// 			{
-		// 				id: action.id,
-		// 				name: action.name,
-		// 				status: false
-		// 			},
-		// 			...state.todoList
-		// 		]
-		// 	}
+		case Actions.getFileList:
+			console.log(2222333444,action.fileList);
+			return {
+				...state,
+				fileList: action.fileList,
+			}
 		// case Actions.toggleTodo:
 		// 	return {
 		// 		...state,

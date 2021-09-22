@@ -1,6 +1,8 @@
 class Cache  {
     static get = name => localStorage.getItem(name)
+    static getJson = name => JSON.parse(localStorage.getItem(name))
     static set = (name, value) => localStorage.setItem(name, value)
+    static setJson = (name, value) => localStorage.setItem(name, JSON.stringify(value))
     static remove = name => localStorage.removeItem(name)
     static setSession = (name, value) => sessionStorage.setItem(name, value)
     static removeSession = (name) => sessionStorage.removeItem(name)

@@ -1,8 +1,11 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import { Layout, Menu, Breadcrumb, Dropdown, Avatar, Table, Button, Space, Upload, Radio } from 'antd';
-import { stopEventBubble } from '../../util/util'
-import Cache from '../../util/cache'
+import moment from 'moment'; 
+import { saveUserInfo } from '../../store/reducer/user/action';
+import { getFileList } from '../../api/file';
+import { stopEventBubble } from '../../util/util';
+import Cache from '../../util/cache';
 import {
   PieChartOutlined,
   UserOutlined,
@@ -46,64 +49,6 @@ const fileOperation = (
   </Menu>
 )
 
-
-const columns = [
-  {
-    title: '名称',
-    dataIndex: 'name',
-  },
-  {
-    title: '大小',
-    dataIndex: 'size',
-  },
-  {
-    title: '操作',
-    dataIndex: 'action',
-    render: (text, record, index) => {
-      return <span onClick={e => stopEventBubble(e)}>
-        <Space>
-          <a onClick={e => stopEventBubble(e)} title="分享" href="22"><ShareAltOutlined /></a>
-          <a onClick={e => stopEventBubble(e)} title="下载" href="22"><DownloadOutlined /></a>
-          <Dropdown overlay={fileOperation} trigger={['click']}>
-            <a title="更多" className="ant-dropdown-link" onClick={e => stopEventBubble(e)}>
-              <EllipsisOutlined />
-            </a>
-          </Dropdown>
-        </Space>
-      </span>
-    },
-  },
-  {
-    title: '修改时间',
-    dataIndex: 'updateAt',
-  },
-];
-
-const data = [
-  {
-    key: 1,
-    action: 1,
-    updateAt: "2021-09-13 23:35",
-    size: "25.0KB",
-    name: "readme.md",
-
-  },
-  {
-    key: 2,
-    action: 1,
-    updateAt: "2021-09-13 23:35",
-    size: "-",
-    name: "音乐",
-  },
-  {
-    key: 3,
-    action: 1,
-    updateAt: "2021-09-13 23:35",
-    size: "35.0MB",
-    name: "参考文档.doc",
-  }
-];
-
 class MainLayout extends React.Component {
   state = {
     selectedRowKeys: [],
@@ -125,10 +70,23 @@ class MainLayout extends React.Component {
 
   componentWillMount() {
     console.log('componentWillMount');
-        if (parseInt(Cache.get('isLogin')) !== 1) {
-          this.props.history.replace('/login');
-          return false;
-        }
+    // 未登录，跳转到登录页面
+    if (parseInt(Cache.get('isLogin')) !== 1) {
+      this.props.history.replace('/login');
+      return false;
+    }
+    let userInfo = Cache.getJson('userInfo');
+    if (!userInfo || !userInfo.id) {
+      this.props.history.replace('/login');
+      return false;
+    }
+    // 加载用户信息
+
+    this.props.saveUserInfo(userInfo);
+  }
+
+  componentDidMount() {
+    this.props.getFileList();
   }
 
   start = () => {
@@ -209,7 +167,47 @@ class MainLayout extends React.Component {
       selectedRowKeys,
       onChange: this.onSelectChange,
     };
-    const hasSelected = selectedRowKeys.length > 0;
+
+    const columns = [
+      {
+        title: '名称',
+        dataIndex: 'name',
+      },
+      {
+        title: '大小',
+        dataIndex: 'file.size',
+        render: (text, record) => {
+          if (record.is_dir === 1) {
+            return '-';
+          }
+          return record.file.size;
+        }
+      },
+      {
+        title: '操作',
+        dataIndex: 'action',
+        render: (text, record) => {
+          return <span onClick={e => stopEventBubble(e)}>
+            <Space>
+              <a onClick={e => stopEventBubble(e)} title="分享" href="22"><ShareAltOutlined /></a>
+              <a onClick={e => stopEventBubble(e)} title="下载" href="22"><DownloadOutlined /></a>
+              <Dropdown overlay={fileOperation} trigger={['click']}>
+                <a title="更多" className="ant-dropdown-link" onClick={e => stopEventBubble(e)}>
+                  <EllipsisOutlined />
+                </a>
+              </Dropdown>
+            </Space>
+          </span>
+        },
+      },
+      {
+        title: '修改时间',
+        dataIndex: 'updated_at',
+        render: text => {
+          return moment(text*1000).format('YYYY-MM-DD HH:mm');
+        }
+      },
+    ];
 
     return (
       <Layout className="main" style={{ minHeight: '100vh' }}>
@@ -295,7 +293,7 @@ class MainLayout extends React.Component {
           <Content className="content">
             <div>
               <div>
-                <Table onRow={this.onRow} size="middle" pagination={false} rowSelection={rowSelection} columns={columns} dataSource={data} />
+                <Table rowKey='id' onRow={this.onRow} size="middle" pagination={false} rowSelection={rowSelection} columns={columns} dataSource={this.props.file.fileList} />
               </div>
             </div>
           </Content>
@@ -306,11 +304,13 @@ class MainLayout extends React.Component {
 }
 
 const mapStateToProps = (state, ownProps) => ({
+  file: state.File,
   user: state.User,
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  // saveUserInfo: userInfo => dispatch(saveUserInfo(userInfo)),
+  saveUserInfo: userInfo => dispatch(saveUserInfo(userInfo)),
+  getFileList: () => dispatch(getFileList()),
 });
 
 export default connect(
