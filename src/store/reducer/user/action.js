@@ -7,8 +7,7 @@
 
  export const saveUserInfo = userInfo => ({
      type: Actions.saveUserInfo,
-     username,
-     password
+     userInfo
  });
  
  

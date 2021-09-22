@@ -1,4 +1,5 @@
 import React from 'react';
+import {connect} from 'react-redux';
 import { Layout, Menu, Breadcrumb, Dropdown, Avatar, Table, Button, Space, Upload, Radio } from 'antd';
 import { stopEventBubble } from '../../util/util'
 import Cache from '../../util/cache'
@@ -202,6 +203,7 @@ class MainLayout extends React.Component {
 
 
   render() {
+    console.log(this.props);
     const { selectedRowKeys } = this.state;
     const rowSelection = {
       selectedRowKeys,
@@ -251,7 +253,8 @@ class MainLayout extends React.Component {
                   <Dropdown overlay={menu}>
                     <div>
                       <Avatar size={50} icon={<UserOutlined />} />
-                      醉丶春风 <DownOutlined />
+                      {/* 醉丶春风 <DownOutlined /> */}
+                      {this.props.user.userInfo.nickname} <DownOutlined />
                     </div>
                   </Dropdown>
                 </li>
@@ -302,4 +305,15 @@ class MainLayout extends React.Component {
   }
 }
 
-export default MainLayout;
+const mapStateToProps = (state, ownProps) => ({
+  user: state.User,
+});
+
+const mapDispatchToProps = (dispatch, ownProps) => ({
+  // saveUserInfo: userInfo => dispatch(saveUserInfo(userInfo)),
+});
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(MainLayout);

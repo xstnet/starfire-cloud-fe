@@ -1,8 +1,8 @@
 import { combineReducers } from 'redux';
 import File from './file/index';
-// import common from './common/index'
+import User from './user/index'
 
 export default combineReducers({
 	File,
-	// common,
+	User,
 })

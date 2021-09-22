@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Form, Input, Button, Checkbox, message } from 'antd';
 import { login } from '../../api/user';
+import { saveUserInfo } from '../../store/reducer/user/action';
 import Cache from '../../util/cache'
 import './index.less';
 
@@ -25,6 +26,7 @@ class Login extends React.Component {
             this.setState({ submitDisabled: false });
             message.success({ content: '登录成功...', key: 'logining', duration: 2 });
             Cache.set('isLogin', 1);
+            this.props.saveUserInfo(response.data.profile);
             this.props.history.replace('/');
         }, err => {
             this.setState({ submitDisabled: false });
@@ -81,7 +83,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-    // getRoomList: homeId => dispatch(getRoomList(homeId)),
+    saveUserInfo: userInfo => dispatch(saveUserInfo(userInfo)),
 });
 
 export default connect(
