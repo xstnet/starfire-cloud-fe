@@ -32,16 +32,8 @@ class FileList extends React.Component {
     selectedRowKeys: [],
     dirStack: [
       {
-        name: '文件夹1',
-        id: 1,
-      },
-      {
-        name: '文件夹2',
-        id: 1,
-      },
-      {
-        name: '文件夹3',
-        id: 1,
+        name: '全部文件',
+        id: 0,
       }
     ],
 
@@ -89,6 +81,23 @@ class FileList extends React.Component {
     }
   }
 
+  onBreadCrumbClick = id => {
+    this.popDirStack(id);
+  }
+
+  pushDirStack = (id, name) => {
+    this.setState({dirStack: [...this.state.dirStack, {id, name}]});
+  }
+
+  popDirStack = id => {
+    let index = this.state.dirStack.findIndex(v => v.id === id);
+    if (index === -1) {
+      return;
+    }
+
+    this.setState({dirStack: this.state.dirStack.slice(0, index+1)});
+  }
+
   // onRow={record => {
   //   return {
   //     onClick: event => {}, // 点击行
@@ -100,12 +109,10 @@ class FileList extends React.Component {
   // }}
 
   renderDirStack() {
-    return [
-      <Breadcrumb.Item key='all'>全部文件</Breadcrumb.Item>,
-      ...this.state.dirStack.map(item => {
-        return <Breadcrumb.Item key={item.id}>{item.name}</Breadcrumb.Item>
-      })
-    ]
+    return this.state.dirStack.map(item => {
+      // return <Breadcrumb.Item key={item.id}><a href="javascript:void(0)" onClick={this.onBreadCrumbClick.bind(this,item.id)}>{item.name}</a></Breadcrumb.Item>
+      return <Breadcrumb.Item key={item.id}><a href="javascript:void(0)" onClick={() => this.onBreadCrumbClick(item.id)}>{item.name}</a></Breadcrumb.Item>
+    })
   }
 
   renderBreadCrumb() {
