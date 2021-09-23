@@ -30,6 +30,7 @@ class FileList extends React.Component {
 
   state = {
     selectedRowKeys: [],
+    fileList: [],
     dirStack: [
       {
         name: '全部文件',
@@ -39,22 +40,26 @@ class FileList extends React.Component {
 
   }
 
-
   componentDidMount() {
-    this.props.getFileList();
+    this.loadData(0);
   }
 
-  start = () => {
-    // ajax request after empty completing
-    setTimeout(() => {
-      this.setState({
-        selectedRowKeys: [],
-      });
-    }, 1000);
-  };
+  loadData = parentId => {
+    getFileList(0).then(response => {
+      this.setState({fileList: response.data.list, selectedRowKeys:[]})
+    })
+  }
 
-  test() {
-    console.log('test');
+  onFileClick = (event, rowData) => {
+    stopEventBubble(event);
+      console.log(rowData);
+
+      if (rowData.is_dir) {
+        this.pushDirStack(rowData.id, rowData.name);
+        this.loadData(rowData.id);
+        return ;
+      }
+
   }
 
   onSelectChange = selectedRowKeys => {
@@ -67,11 +72,11 @@ class FileList extends React.Component {
       onClick: e => {
         console.log(e);
         console.log(record);
-        let index = this.state.selectedRowKeys.indexOf(record.key);
+        let index = this.state.selectedRowKeys.indexOf(record.id);
         if (index >= 0) {
           this.state.selectedRowKeys.splice(index, 1)
         } else {
-          this.state.selectedRowKeys.push(record.key)
+          this.state.selectedRowKeys.push(record.id)
         }
         this.setState({ selectedRowKeys: [...this.state.selectedRowKeys] })
       },
@@ -86,7 +91,7 @@ class FileList extends React.Component {
   }
 
   pushDirStack = (id, name) => {
-    this.setState({dirStack: [...this.state.dirStack, {id, name}]});
+    this.setState({ dirStack: [...this.state.dirStack, { id, name }] });
   }
 
   popDirStack = id => {
@@ -95,7 +100,9 @@ class FileList extends React.Component {
       return;
     }
 
-    this.setState({dirStack: this.state.dirStack.slice(0, index+1)});
+    this.loadData(id);
+
+    this.setState({ dirStack: this.state.dirStack.slice(0, index + 1) });
   }
 
   // onRow={record => {
@@ -136,6 +143,22 @@ class FileList extends React.Component {
       {
         title: '名称',
         dataIndex: 'name',
+        render: (text, record) => {
+          let ext = record.is_dir ? 'dir' : (record.file.ext || 'txt');
+          return (
+            <span>
+              <span className="file-list-icon">
+                <svg class={`icon icon-${ext}`} aria-hidden="true">
+                  <use xlinkHref={`#icon-${ext}`}></use>
+                </svg>
+              </span>
+              <a className="file-list-title" href="javascript:void(0)" onClick={e => this.onFileClick(e,record)}>{text}</a>
+            </span>
+
+          )
+
+
+        }
       },
       {
         title: '大小',
@@ -199,7 +222,7 @@ class FileList extends React.Component {
         {this.renderBreadCrumb()}
       </Breadcrumb>
       {/* {this.props.children} */}
-      <Table rowKey='id' onRow={this.onRow} size="middle" pagination={false} rowSelection={rowSelection} columns={columns} dataSource={this.props.file.fileList} />
+      <Table rowKey='id' onRow={this.onRow} size="middle" pagination={false} rowSelection={rowSelection} columns={columns} dataSource={this.state.fileList} />
     </div>)
   }
 }
@@ -210,7 +233,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  getFileList: () => dispatch(getFileList()),
+  // getFileList: () => dispatch(getFileList()),
 });
 
 export default connect(

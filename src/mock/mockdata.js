@@ -1,5 +1,5 @@
 import Mock from 'mockjs';
-// const Random = Mock.Random;
+const Random = Mock.Random;
 
 Mock.mock(RegExp('/api/v1/user-info' + ".*"), "get", (options) => {
 	console.log(options.body);
@@ -29,7 +29,7 @@ Mock.mock(RegExp('/api/v1/login'), "post", (options) => {
                         "free": 87119437824
                     },
                     "email": "777789@qq.com",
-                    "id": 15,
+                    "id|1-1111111111": 15,
                     "nickname": "哈哈哈",
                     "register_time": "2021-08-30 01:53:27",
                     "total_space": 0,
@@ -51,6 +51,45 @@ Mock.mock(RegExp('/api/v1/login'), "post", (options) => {
 });
 
 Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
+    let filenames = [
+        'new.txt',
+        'new.doc',
+        '神秘视频.avi',
+        '发如雪.mp3',
+        'react-guide.md',
+        'mockdata.js',
+        'index.jsx',
+        'test.php',
+        'caocaocao.cpp',
+        'fuckfuck.c',
+        '测试文件',
+    ];
+    let dirnames = [
+        '新建文件夹1',
+        '音乐',
+        '游戏',
+        '文档',
+        'test',
+        'controllers',
+        'pages',
+        'tools',
+        'public',
+        '工具箱',
+        'react教程',
+        'fuck',
+        '这是随机的',
+        '美国往事',
+        '穷啊',
+        'code',
+        'src',
+        'sourcecode',
+        'phper',
+        'goer',
+        'jser',
+        '测试文件夹1',
+        '歌曲列表',
+        '秘密文件',
+    ];
     let result = {
         "code": 0,
         "message": "ok",
@@ -59,184 +98,181 @@ Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
                 {
                     "created_at": 1630816207,
                     "file": {
-                        "ext": "txt",
-                        "id": 1,
-                        "kind": 1,
-                        "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size": 2
+                        "id|1-1111111111": 0,
                     },
                     "file_id": 1,
-                    "id": 47,
-                    "is_dir": 0,
-                    "name": "新建文本文档..._20210905_123007.TXT",
+                    "id|1-1111111111": 47,
+                    "is_dir": 1,
+                    "name|1": dirnames,
                     "parent_id": 0,
                     "updated_at": 1630816207
                 },
                 {
                     "created_at": 1630816207,
                     "file": {
-                        "ext": "txt",
-                        "id": 1,
+                        "ext": "mp3",
+                        "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size": 2
+                        "size|1-100000000":100000
                     },
                     "file_id": 1,
-                    "id": 48,
+                    "id|1-1111111111": 48,
                     "is_dir": 0,
-                    "name": "新建文本文档..._20210905_123007.TXT",
+                    "name|1": filenames,
                     "parent_id": 0,
                     "updated_at": 1630816207
                 },
                 {
                     "created_at": 1630816207,
                     "file": {
-                        "ext": "txt",
-                        "id": 1,
+                        "ext": "video",
+                        "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size": 2
+                        "size|1-100000000":100000
                     },
                     "file_id": 1,
-                    "id": 49,
+                    "id|1-1111111111": 49,
                     "is_dir": 0,
-                    "name": "新建文本文档..._20210905_123007.TXT",
+                    "name|1": filenames,
                     "parent_id": 0,
                     "updated_at": 1630816207
                 },
                 {
                     "created_at": 1630816207,
                     "file": {
-                        "ext": "txt",
-                        "id": 1,
+                        "ext": "a7z",
+                        "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size": 2
+                        "size|1-100000000":100000
                     },
                     "file_id": 1,
-                    "id": 50,
+                    "id|1-1111111111": 50,
                     "is_dir": 0,
-                    "name": "新建文本文档..._20210905_123007.TXT",
+                    "name|1": filenames,
                     "parent_id": 0,
                     "updated_at": 1630816207
                 },
                 {
                     "created_at": 1630816207,
                     "file": {
-                        "ext": "txt",
-                        "id": 1,
+                        "ext": "apk",
+                        "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size": 2
+                        "size|1-100000000":100000
                     },
                     "file_id": 1,
-                    "id": 51,
+                    "id|1-1111111111": 51,
                     "is_dir": 0,
-                    "name": "新建文本文档..._20210905_123007.TXT",
+                    "name|1": filenames,
                     "parent_id": 0,
                     "updated_at": 1630816207
                 },
                 {
                     "created_at": 1630816206,
                     "file": {
-                        "id": 0
+                        "id|1-1111111111": 0
                     },
                     "file_id": 1,
-                    "id": 45,
+                    "id|1-1111111111": 45,
                     "is_dir": 1,
-                    "name": "新文件夹",
+                    "name|1": dirnames,
                     "parent_id": 0,
                     "updated_at": 1630816206
                 },
                 {
                     "created_at": 1630773632,
                     "file": {
-                        "ext": "txt",
-                        "id": 1,
+                        "ext": "dmg",
+                        "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size": 2
+                        "size|1-100000000":100000
                     },
                     "file_id": 1,
-                    "id": 40,
+                    "id|1-1111111111": 40,
                     "is_dir": 0,
-                    "name": "新建文本文档..._20210905_004032.TXT",
+                    "name|1": filenames,
                     "parent_id": 0,
                     "updated_at": 1630773632
                 },
                 {
                     "created_at": 1630773618,
                     "file": {
-                        "ext": "txt",
-                        "id": 1,
+                        "ext": "xls",
+                        "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size": 2
+                        "size|1-100000000":100000
                     },
                     "file_id": 1,
-                    "id": 39,
+                    "id|1-1111111111": 39,
                     "is_dir": 0,
-                    "name": "新建文本文档..._20210905_004018.TXT",
+                    "name|1": filenames,
                     "parent_id": 0,
                     "updated_at": 1630773618
                 },
                 {
                     "created_at": 1630772949,
                     "file": {
-                        "ext": "txt",
-                        "id": 1,
+                        "ext": "doc",
+                        "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size": 2
+                        "size|1-100000000":100000
                     },
                     "file_id": 1,
-                    "id": 38,
+                    "id|1-1111111111": 38,
                     "is_dir": 0,
-                    "name": "新建文本文档....TXT_20210905_002909",
+                    "name|1": filenames,
                     "parent_id": 0,
                     "updated_at": 1630772949
                 },
                 {
                     "created_at": 1630772907,
                     "file": {
-                        "ext": "txt",
-                        "id": 1,
+                        "ext": "png",
+                        "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size": 2
+                        "size|1-100000000":100000
                     },
                     "file_id": 1,
-                    "id": 37,
+                    "id|1-1111111111": 37,
                     "is_dir": 0,
-                    "name": "新建文本文档....TXT",
+                    "name|1": filenames,
                     "parent_id": 0,
                     "updated_at": 1630772907
                 },
                 {
                     "created_at": 1630772744,
                     "file": {
-                        "ext": "txt",
-                        "id": 1,
+                        "ext": "mp4",
+                        "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size": 2
+                        "size|1-100000000":100000
                     },
                     "file_id": 1,
-                    "id": 36,
+                    "id|1-1111111111": 36,
                     "is_dir": 0,
-                    "name": "新建文本文档....TXT",
+                    "name|1": filenames,
                     "parent_id": 0,
                     "updated_at": 1630772744
                 },
                 {
                     "created_at": 1630332444,
                     "file": {
-                        "id": 0
+                        "id|1-1111111111": 0,
+                        "ext": "ppt",
                     },
                     "file_id": 0,
-                    "id": 1,
-                    "is_dir": 0,
-                    "name": "first",
+                    "id|1-1111111111": 1,
+                    "is_dir": 1,
+                    "name|1": dirnames,
                     "parent_id": 0,
                     "updated_at": 1630332444
                 }
