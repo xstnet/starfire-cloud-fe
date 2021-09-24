@@ -139,7 +139,7 @@ Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
                     "file_id": 1,
                     "id|1-1111111111": 49,
                     "is_dir": 0,
-                    "name|1@cname": filenames,
+                    "name|1": filenames,
                     "parent_id": 0,
                     "updated_at": 1630816207
                 },

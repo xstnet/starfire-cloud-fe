@@ -18,16 +18,6 @@ import {
   EditOutlined,
 } from '@ant-design/icons';
 
-const fileOperation = (
-  <Menu>
-    <Menu.Item key="move">移动</Menu.Item>
-    <Menu.Item key="delete">删除</Menu.Item>
-    <Menu.Item key="rename">重命名</Menu.Item>
-    <Menu.Item key="favorite">收藏</Menu.Item>
-  </Menu>
-)
-
-
 class FileList extends React.Component {
 
   state = {
@@ -67,7 +57,7 @@ class FileList extends React.Component {
     })
   }
 
-  onFileClick = (event, rowData) => {
+  onFilenameClick = (event, rowData) => {
     stopEventBubble(event);
       if (rowData.is_dir) {
         this.pushDirStack(rowData.id, rowData.name);
@@ -98,7 +88,8 @@ class FileList extends React.Component {
     }
   }
 
-  onBreadCrumbClick = id => {
+  onBreadCrumbClick = (event, id) => {
+    stopEventBubble(event);
     this.popDirStack(id);
   }
 
@@ -117,6 +108,56 @@ class FileList extends React.Component {
     this.setState({ dirStack: this.state.dirStack.slice(0, index + 1) });
   }
 
+  getFileIndexById = id => {
+    return this.state.fileList.findIndex(v => v.id === id);
+  }
+
+  onRenameClick = id => {
+    console.log(id);
+
+    setTimeout(() => {
+      let index = this.getFileIndexById(id);
+
+      this.state.fileList[index].name = 'rename........ success'+id;
+      this.setState({fileList: [...this.state.fileList]});
+    }, 500);
+  }
+
+  handleRename = id => {
+    console.log(id);
+  }
+
+  onShareClick = id => {
+    console.log(id);
+  }
+
+  handleShare = id => {
+    console.log(id);
+  }
+
+  onDeleteClick = ids => {
+    console.log(ids);
+
+    setTimeout(() => {
+      this.setState({
+        fileList: this.state.fileList.filter(v => ids.indexOf(v.id) === -1),
+        selectedRowKeys: this.state.selectedRowKeys.filter(v => ids.indexOf(v) === -1),
+      });
+    }, 500);
+  }
+
+  handleDelete = ids => {
+    console.log(ids);
+  }
+
+  onMoveClick = ids => {
+    console.log(ids);
+  }
+
+  handleMove = ids => {
+    console.log(ids);
+  }
+
   // onRow={record => {
   //   return {
   //     onClick: event => {}, // 点击行
@@ -130,7 +171,7 @@ class FileList extends React.Component {
   renderDirStack() {
     return this.state.dirStack.map(item => {
       // return <Breadcrumb.Item key={item.id}><a href="javascript:void(0)" onClick={this.onBreadCrumbClick.bind(this,item.id)}>{item.name}</a></Breadcrumb.Item>
-      return <Breadcrumb.Item key={item.id}><a href="javascript:void(0)" onClick={() => this.onBreadCrumbClick(item.id)}>{item.name}</a></Breadcrumb.Item>
+      return <Breadcrumb.Item key={item.id}><a onClick={(e) => this.onBreadCrumbClick(e, item.id)}>{item.name}</a></Breadcrumb.Item>
     })
   }
 
@@ -217,7 +258,7 @@ class FileList extends React.Component {
               <span className="file-list-icon">
                 <Svg name={ext}/>
               </span>
-              <a className="file-list-title" href="javascript:void(0)" onClick={e => this.onFileClick(e,record)}>{text}</a>
+              <a className="file-list-title" onClick={e => this.onFilenameClick(e,record)}>{text}</a>
             </span>
 
           )
@@ -239,9 +280,9 @@ class FileList extends React.Component {
         render: (text, record) => {
           return <span onClick={e => stopEventBubble(e)}>
             <Space>
-              <a onClick={e => stopEventBubble(e)} title="分享" href="22"><ShareAltOutlined /></a>
+              <a onClick={() => this.onShareClick(record.id)} title="分享" href="22"><ShareAltOutlined /></a>
               <a onClick={e => stopEventBubble(e)} title="下载" href="22"><DownloadOutlined /></a>
-              <Dropdown overlay={fileOperation} trigger={['click']}>
+              <Dropdown overlay={<FileOperation id={record.id}/>} trigger={['click']}>
                 <a title="更多" className="ant-dropdown-link" onClick={e => stopEventBubble(e)}>
                   <EllipsisOutlined />
                 </a>
@@ -259,6 +300,14 @@ class FileList extends React.Component {
       },
     ];
 
+    const FileOperation = (prop) => (
+      <Menu className="file-operation-wrap">
+        <Menu.Item onClick={this.onMoveClick.bind(this, [prop.id])} key="move">移动</Menu.Item>
+        <Menu.Item onClick={this.onDeleteClick.bind(this, [prop.id])} key="delete">删除</Menu.Item>
+        <Menu.Item onClick={this.onRenameClick.bind(this, prop.id)} key="rename">重命名</Menu.Item>
+        <Menu.Item key="favorite">收藏</Menu.Item>
+      </Menu>
+    )
 
     return (<div>
       <div className="action-bar">
@@ -275,10 +324,10 @@ class FileList extends React.Component {
           <div className={`action-file-bar ${this.state.selectedRowKeys.length > 0 ? '' : 'hide'}`}>
             <Button className={`${this.state.selectedRowKeys.length === 1 ? '' : 'hide'}`} type="primary" icon={<DownloadOutlined />} size="middle">下载 </Button>
             <Button className={`${this.state.selectedRowKeys.length > 1 ? '' : 'hide'}`} type="primary" icon={<DownloadOutlined />} size="middle">打包下载 </Button>
-            <Button className={`${this.state.selectedRowKeys.length === 1 ? '' : 'hide'}`} type="primary" icon={<ShareAltOutlined />} size="middle">分享 </Button>
-            <Button type="primary" icon={<DeleteOutlined />} size="middle">删除 </Button>
-            <Button className={`${this.state.selectedRowKeys.length === 1 ? '' : 'hide'}`} type="primary" icon={<EditOutlined />} size="middle">重命名 </Button>
-            <Button type="primary" icon={<FolderAddOutlined />} size="middle">移动 </Button>
+            <Button className={`${this.state.selectedRowKeys.length === 1 ? '' : 'hide'}`} type="primary" icon={<ShareAltOutlined />} onClick={() => this.onShareClick(this.state.selectedRowKeys[0])} size="middle">分享 </Button>
+            <Button type="primary" icon={<DeleteOutlined />} size="middle" onClick={() => this.onDeleteClick(this.state.selectedRowKeys)}>删除 </Button>
+            <Button className={`${this.state.selectedRowKeys.length === 1 ? '' : 'hide'}`} onClick={() => this.onRenameClick(this.state.selectedRowKeys[0])} type="primary" icon={<EditOutlined />} size="middle">重命名 </Button>
+            <Button type="primary" icon={<FolderAddOutlined />} size="middle" onClick={() => this.onMoveClick(this.state.selectedRowKeys)}>移动 </Button>
             <Button type="primary" icon={<StarOutlined />} size="middle">收藏 </Button>
           </div>
         </Space>

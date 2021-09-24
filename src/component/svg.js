@@ -1,6 +1,6 @@
 const Svg = props => {
     return (
-        <svg class={`icon icon-${props.name}`} aria-hidden="true">
+        <svg className={`icon icon-${props.name}`} aria-hidden="true">
             <use xlinkHref={`#icon-${props.name}`}></use>
         </svg>
     )
