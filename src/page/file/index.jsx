@@ -4,7 +4,8 @@ import { Breadcrumb, Dropdown, Table, Button, Space, Upload, Menu, Row, Col } fr
 import { Modal, Form, Input, Radio } from 'antd';
 import moment from 'moment';
 import { stopEventBubble, renderSize } from '../../util/util';
-import { getFileList } from '../../api/file';
+import { getFileList,mkdir } from '../../api/file';
+import Svg from '../../component/svg';
 import './index.less';
 import {
   UploadOutlined,
@@ -49,25 +50,25 @@ class FileList extends React.Component {
   }
 
   onMkdirClick() {
-    console.log(this.state);
     this.setState({showMkdirModal: true});
   }
 
   handleMkdir = values => {
-      console.log(values);
+      let parentId = this.state.dirStack[this.state.dirStack.length-1].id;
+      mkdir(parentId, values.name).then(response => {
+        this.setState({showMkdirModal: false, fileList:[response.data, ...this.state.fileList]});
+      })
   }
 
   loadData = parentId => {
     this.setState({loading: true});
-    getFileList(0).then(response => {
+    getFileList(parentId).then(response => {
       this.setState({fileList: response.data.list, selectedRowKeys:[], loading:false, hasMore: response.data.more})
     })
   }
 
   onFileClick = (event, rowData) => {
     stopEventBubble(event);
-      console.log(rowData);
-
       if (rowData.is_dir) {
         this.pushDirStack(rowData.id, rowData.name);
         this.loadData(rowData.id);
@@ -77,15 +78,12 @@ class FileList extends React.Component {
   }
 
   onSelectChange = selectedRowKeys => {
-    console.log('selectedRowKeys changed: ', selectedRowKeys);
     this.setState({ selectedRowKeys });
   };
 
   onRow = record => {
     return {
       onClick: e => {
-        console.log(e);
-        console.log(record);
         let index = this.state.selectedRowKeys.indexOf(record.id);
         if (index >= 0) {
           this.state.selectedRowKeys.splice(index, 1)
@@ -159,6 +157,49 @@ class FileList extends React.Component {
       onChange: this.onSelectChange,
     };
 
+    const MkdirForm = () => {
+      const [form] = Form.useForm();
+      return (
+        <Modal
+          visible={this.state.showMkdirModal}
+          title="创建新文件夹"
+          okText="创建"
+          cancelText="取消"
+          onCancel={() => this.setState({showMkdirModal: false})}
+          onOk={() => {
+            form
+              .validateFields()
+              .then((values) => {
+                form.resetFields();
+                this.handleMkdir(values);
+              })
+              .catch((info) => {
+              });
+          }}
+        >
+          <Form
+            form={form}
+            layout="horizontal"
+            name="form_in_modal"
+          >
+            <Form.Item
+              name="name"
+              label="名称"
+              rules={[
+                {
+                  required: true,
+                  message: '请输入文件夹名称!',
+                },
+              ]}
+            >
+              <Input />
+            </Form.Item>
+
+          </Form>
+        </Modal>
+      );
+    };
+
     const columns = [
       {
         title: () => {
@@ -170,13 +211,11 @@ class FileList extends React.Component {
         dataIndex: 'name',
         width: '30%',
         render: (text, record) => {
-          let ext = record.is_dir ? 'dir' : (record.file.ext || 'txt');
+          let ext = record.is_dir ? 'dir' : (record.file?.ext || 'txt');
           return (
             <span>
               <span className="file-list-icon">
-                <svg class={`icon icon-${ext}`} aria-hidden="true">
-                  <use xlinkHref={`#icon-${ext}`}></use>
-                </svg>
+                <Svg name={ext}/>
               </span>
               <a className="file-list-title" href="javascript:void(0)" onClick={e => this.onFileClick(e,record)}>{text}</a>
             </span>
@@ -188,10 +227,10 @@ class FileList extends React.Component {
         title: '大小',
         dataIndex: 'file.size',
         render: (text, record) => {
-          if (record.is_dir === 1 || record.file.id === 0) {
+          if (record.is_dir === 1 || record.file?.id === 0) {
             return '-';
           }
-          return renderSize(record.file.size);
+          return renderSize(record.file?.size);
         }
       },
       {
@@ -257,32 +296,9 @@ class FileList extends React.Component {
         </Col>
       </Row>
       
-      {/* {this.props.children} */}
       <Table rowKey='id' onRow={this.onRow} size="middle" pagination={false} rowSelection={rowSelection} columns={columns} dataSource={this.state.fileList} />
 
-      <Modal
-      visible={this.state.showMkdirModal}
-      title="创建新文件夹"
-      okText="创建"
-      onFinish={this.handleMkdir}
-      cancelText="取消"
-      onCancel={() => this.setState({showMkdirModal: false})}
-      
-    >
-      <Form
-        layout="vertical"
-        name="form_in_modal"
-        initialValues={{ modifier: 'public' }}
-      >
-        <Form.Item
-          name="名称"
-          label="名称"
-          rules={[{ required: true, message: '请输入文件夹名称!' }]}
-        >
-          <Input />
-        </Form.Item>
-      </Form>
-    </Modal>
+      <MkdirForm/>
     </div>)
   }
 }

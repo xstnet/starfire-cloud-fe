@@ -17,6 +17,10 @@ import * as Actions from '../store/Actions';
 
 export const getFileList = parentId => {
 	let result =  Http.get('/filemanager/file', {parent_id: parentId});
+    return result;
+}
 
+export const mkdir = (parentId, name) => {
+	let result =  Http.post('/filemanager/mkdir', {parent_id: parentId, name});
     return result;
 }

@@ -1,20 +1,20 @@
 import Mock from 'mockjs';
 const Random = Mock.Random;
 
-Mock.mock(RegExp('/api/v1/user-info' + ".*"), "get", (options) => {
-	console.log(options.body);
-	let result = {
-		code: 0,
-		message: '添加成功',
-		data: {},
-	};
+Mock.mock(RegExp('/mock/api/v1/user-info' + ".*"), "get", (options) => {
+    console.log(options.body);
+    let result = {
+        code: 0,
+        message: '添加成功',
+        data: {},
+    };
 
-	return Mock.mock(result);
+    return Mock.mock(result);
 });
 
-Mock.mock(RegExp('/api/v1/login'), "post", (options) => {
+Mock.mock(RegExp('/mock/api/v1/login'), "post", (options) => {
     let params = JSON.parse(options.body);
-	console.log('mockkkkkk', options.body, params);
+    console.log('mockkkkkk', options.body, params);
 
     let result = {};
     if (params.username === 'demo' && params.password === 'demo') {
@@ -47,7 +47,7 @@ Mock.mock(RegExp('/api/v1/login'), "post", (options) => {
         };
     }
 
-	return Mock.mock(result);
+    return Mock.mock(result);
 });
 
 Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
@@ -90,11 +90,15 @@ Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
         '歌曲列表',
         '秘密文件',
     ];
+
+    let exts = [
+        'jpg', 'png', 'mp3', 'mp4', 'a7z', 'pdf', 'exe', 'apk', 'doc', 'doc', 'txt', 'docx', 'xls', 'ppt', 'php', 'go', 'cpp', 'md', 'xmind', 'dmg', 'xls', 'java', 'js', 'json', 'flac', 'gif', 'zip', 'rar', 'msi', 'iso', 'psd', 'css','html','cs'
+    ]
     let result = {
         "code": 0,
         "message": "ok",
         "data": {
-            "list": [
+            "list|1-4": [
                 {
                     "created_at": 1630816207,
                     "file": {
@@ -110,11 +114,11 @@ Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
                 {
                     "created_at": 1630816207,
                     "file": {
-                        "ext": "mp3",
+                        "ext|1": exts,
                         "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size|1-100000000":100000
+                        "size|1-100000000": 100000
                     },
                     "file_id": 1,
                     "id|1-1111111111": 48,
@@ -126,27 +130,27 @@ Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
                 {
                     "created_at": 1630816207,
                     "file": {
-                        "ext": "video",
+                        "ext|1": exts,
                         "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size|1-100000000":100000
+                        "size|1-100000000": 100000
                     },
                     "file_id": 1,
                     "id|1-1111111111": 49,
                     "is_dir": 0,
-                    "name|1": filenames,
+                    "name|1@cname": filenames,
                     "parent_id": 0,
                     "updated_at": 1630816207
                 },
                 {
                     "created_at": 1630816207,
                     "file": {
-                        "ext": "a7z",
+                        "ext|1": exts,
                         "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size|1-100000000":100000
+                        "size|1-100000000": 100000
                     },
                     "file_id": 1,
                     "id|1-1111111111": 50,
@@ -158,11 +162,11 @@ Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
                 {
                     "created_at": 1630816207,
                     "file": {
-                        "ext": "apk",
+                        "ext|1": exts,
                         "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size|1-100000000":100000
+                        "size|1-100000000": 100000
                     },
                     "file_id": 1,
                     "id|1-1111111111": 51,
@@ -186,11 +190,11 @@ Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
                 {
                     "created_at": 1630773632,
                     "file": {
-                        "ext": "dmg",
+                        "ext|1": exts,
                         "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size|1-100000000":100000
+                        "size|1-100000000": 100000
                     },
                     "file_id": 1,
                     "id|1-1111111111": 40,
@@ -202,11 +206,11 @@ Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
                 {
                     "created_at": 1630773618,
                     "file": {
-                        "ext": "xls",
+                        "ext|1": exts,
                         "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size|1-100000000":100000
+                        "size|1-100000000": 100000
                     },
                     "file_id": 1,
                     "id|1-1111111111": 39,
@@ -218,11 +222,11 @@ Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
                 {
                     "created_at": 1630772949,
                     "file": {
-                        "ext": "doc",
+                        "ext|1": exts,
                         "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size|1-100000000":100000
+                        "size|1-100000000": 100000
                     },
                     "file_id": 1,
                     "id|1-1111111111": 38,
@@ -234,11 +238,11 @@ Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
                 {
                     "created_at": 1630772907,
                     "file": {
-                        "ext": "png",
+                        "ext|1": exts,
                         "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size|1-100000000":100000
+                        "size|1-100000000": 100000
                     },
                     "file_id": 1,
                     "id|1-1111111111": 37,
@@ -250,11 +254,11 @@ Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
                 {
                     "created_at": 1630772744,
                     "file": {
-                        "ext": "mp4",
+                        "ext|1": exts,
                         "id|1-1111111111": 1,
                         "kind": 1,
                         "md5": "b6d767d2f8ed5d21a44b0e5886680cb9",
-                        "size|1-100000000":100000
+                        "size|1-100000000": 100000
                     },
                     "file_id": 1,
                     "id|1-1111111111": 36,
@@ -267,7 +271,6 @@ Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
                     "created_at": 1630332444,
                     "file": {
                         "id|1-1111111111": 0,
-                        "ext": "ppt",
                     },
                     "file_id": 0,
                     "id|1-1111111111": 1,
@@ -277,10 +280,36 @@ Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
                     "updated_at": 1630332444
                 }
             ],
-            "more": 0
+            "more|1": [0,1]
         },
         "cost": "2.3853ms"
     }
 
-	return Mock.mock(result);
+    return Mock.mock(result);
+});
+
+
+Mock.mock(RegExp('/mock/api/v1/filemanager/mkdir'), "post", (options) => {
+    let params = JSON.parse(options.body);
+
+    let result = {
+        "code": 0,
+        "message": "创建成功",
+        "data": {
+            "is_dir": 1,
+            "name": params.name,
+            "parent_id": params.parent_id,
+            "updated_at": 1656584589,
+            "created_at": 1656584589,
+            "id|1000-2252552525": 555555,
+            "file":{
+                id:0,
+                size:0,
+            }
+        },
+        "cost": "1.3664ms"
+    }
+
+
+    return Mock.mock(result);
 });
