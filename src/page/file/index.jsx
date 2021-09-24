@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Breadcrumb, Dropdown, Table, Button, Space, Upload, Menu } from 'antd';
+import { Breadcrumb, Dropdown, Table, Button, Space, Upload, Menu, Row, Col } from 'antd';
+import { Modal, Form, Input, Radio } from 'antd';
 import moment from 'moment';
 import { stopEventBubble, renderSize } from '../../util/util';
 import { getFileList } from '../../api/file';
@@ -31,6 +32,9 @@ class FileList extends React.Component {
   state = {
     selectedRowKeys: [],
     fileList: [],
+    loading: true,
+    hasMore: 0,
+    showMkdirModal: false,
     dirStack: [
       {
         name: '全部文件',
@@ -44,9 +48,19 @@ class FileList extends React.Component {
     this.loadData(0);
   }
 
+  onMkdirClick() {
+    console.log(this.state);
+    this.setState({showMkdirModal: true});
+  }
+
+  handleMkdir = values => {
+      console.log(values);
+  }
+
   loadData = parentId => {
+    this.setState({loading: true});
     getFileList(0).then(response => {
-      this.setState({fileList: response.data.list, selectedRowKeys:[]})
+      this.setState({fileList: response.data.list, selectedRowKeys:[], loading:false, hasMore: response.data.more})
     })
   }
 
@@ -123,14 +137,20 @@ class FileList extends React.Component {
   }
 
   renderBreadCrumb() {
-    console.log('keylen:', this.state.selectedRowKeys.length);
-    if (this.state.selectedRowKeys.length > 0) {
-      return <Breadcrumb.Item key='selected'>已选择{this.state.selectedRowKeys.length}个文件/文件夹 </Breadcrumb.Item>
-    }
-
-
     return this.renderDirStack()
   }
+
+  renderTableSummaryTip() {
+    if (this.state.loading) {
+      return '正在加载中...';
+    }
+    if (this.state.hasMore) {
+      return `已加载${this.state.fileList.length}条数据`;
+    }
+
+    return `共${this.state.fileList.length}条数据，已全部加载`;
+  }
+
 
   render() {
     const { selectedRowKeys } = this.state;
@@ -141,8 +161,14 @@ class FileList extends React.Component {
 
     const columns = [
       {
-        title: '名称',
+        title: () => {
+          if (this.state.selectedRowKeys.length > 0) {
+            return <span>已选择{this.state.selectedRowKeys.length}个文件/文件夹</span>
+          }
+          return <span>名称</span>;
+        },
         dataIndex: 'name',
+        width: '30%',
         render: (text, record) => {
           let ext = record.is_dir ? 'dir' : (record.file.ext || 'txt');
           return (
@@ -156,8 +182,6 @@ class FileList extends React.Component {
             </span>
 
           )
-
-
         }
       },
       {
@@ -195,6 +219,8 @@ class FileList extends React.Component {
         }
       },
     ];
+
+
     return (<div>
       <div className="action-bar">
         <Space>
@@ -203,7 +229,7 @@ class FileList extends React.Component {
               上传
             </Button>
           </Upload>
-          <Button type="primary" icon={<FolderAddOutlined />} size="middle">
+          <Button type="primary" onClick={() => this.onMkdirClick()} icon={<FolderAddOutlined />} size="middle">
             新建
           </Button>
 
@@ -218,11 +244,45 @@ class FileList extends React.Component {
           </div>
         </Space>
       </div>
-      <Breadcrumb className="bread-crumb">
-        {this.renderBreadCrumb()}
-      </Breadcrumb>
+      <Row>
+        <Col span={20}>
+          <Breadcrumb className="bread-crumb">
+            {this.renderBreadCrumb()}
+          </Breadcrumb>
+        </Col>
+        <Col span={4}>
+          <div className="table-summary-tip">
+              {this.renderTableSummaryTip()}
+          </div>
+        </Col>
+      </Row>
+      
       {/* {this.props.children} */}
       <Table rowKey='id' onRow={this.onRow} size="middle" pagination={false} rowSelection={rowSelection} columns={columns} dataSource={this.state.fileList} />
+
+      <Modal
+      visible={this.state.showMkdirModal}
+      title="创建新文件夹"
+      okText="创建"
+      onFinish={this.handleMkdir}
+      cancelText="取消"
+      onCancel={() => this.setState({showMkdirModal: false})}
+      
+    >
+      <Form
+        layout="vertical"
+        name="form_in_modal"
+        initialValues={{ modifier: 'public' }}
+      >
+        <Form.Item
+          name="名称"
+          label="名称"
+          rules={[{ required: true, message: '请输入文件夹名称!' }]}
+        >
+          <Input />
+        </Form.Item>
+      </Form>
+    </Modal>
     </div>)
   }
 }
