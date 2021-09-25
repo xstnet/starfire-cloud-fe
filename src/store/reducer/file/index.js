@@ -2,31 +2,34 @@
 import * as Actions from '../../Actions';
 
 const initState = {
-	fileList: [],
+	uploadTaskQueue: [],
+	// uploadViewCollapsed: true,
 };
 
 const File = (state = initState, action) => {
 	switch (action.type) {
-		case Actions.getFileList:
-			console.log(2222333444,action.fileList);
+		// case Actions.loadUploadFileQueue:
+		// 	return {
+		// 		...state,
+		// 		uploadTaskQueue: Cache.getUploadFileQueue(),
+		// 	}
+		case Actions.addUploadFileItem:
 			return {
 				...state,
-				fileList: action.fileList,
+				uploadViewCollapsed: true,
+				uploadTaskQueue: [...state.uploadTaskQueue, action.item],
 			}
-		// case Actions.toggleTodo:
+		// case Actions.toggleUploadViewShow:
 		// 	return {
 		// 		...state,
-		// 		todoList: state.todoList.map(
-		// 			todo => (todo.id === action.id) ? {...todo, status: todo.status == false ? true : false} : todo
-		// 		)
+		// 		uploadViewCollapsed: !state.uploadViewCollapsed,
 		// 	}
-		// case Actions.deleteTodo:
-		// 	return state;
-		// case Actions.setTodos:
-		// 	return {
-		// 		...state,
-		// 		todoList: action.todolist
-		// 	};
+
+		case Actions.deleteUploadFileQueue:
+			return {
+				...state,
+				uploadTaskQueue: state.uploadTaskQueue.filter(item => item.file.uid !== action.fileId),
+			}
 		default:
 			return state;
 	}

@@ -1,3 +1,5 @@
+import fileExtList from '../config/iconfontlist'
+
 // 阻止事件冒泡
 export const stopEventBubble = e => {e.preventDefault();e.stopPropagation()}
 
@@ -10,4 +12,14 @@ export const renderSize = sizeRaw =>{
     size = isNaN(size) ? 0 : size;
 
     return `${size}${sizeUnit[index] ?? 'B'}`;
+}
+
+export const processFileExt = ext => {
+    if (ext === '7z') {
+        ext = 'a7z';
+    }
+    if (!fileExtList[ext]) {
+        return 'unknown';
+    }
+    return ext;
 }

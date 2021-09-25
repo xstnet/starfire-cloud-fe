@@ -23,6 +23,20 @@ class Cache  {
         }
         return token;
     }
+
+    static getUploadFileQueue = () => {
+        let uploadTaskQueue = this.getJson('uploadTaskQueue');
+        if (!uploadTaskQueue) {
+            return [];
+        }
+        if (!uploadTaskQueue[0]) {
+            return [];
+        }
+        if (!uploadTaskQueue[0].file) {
+            return [];
+        }
+        return uploadTaskQueue;
+    }
 }
 
 export default Cache;

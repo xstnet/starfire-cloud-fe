@@ -1,14 +1,18 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Layout, Menu, Dropdown, Avatar } from 'antd';
+import { Layout, Menu, Dropdown, Avatar, Row, Col, Alert,Tag } from 'antd';
 import { Switch, Route } from 'react-router-dom';
 import { saveUserInfo } from '../../store/reducer/user/action';
+import { stopEventBubble, renderSize, processFileExt } from '../../util/util';
 import Cache from '../../util/cache';
 import FileList from '../file/index';
+import Svg from '../../component/svg';
 import {
   PieChartOutlined,
   UserOutlined,
   DownOutlined,
+  CheckCircleOutlined,
+  CloseOutlined,
 } from '@ant-design/icons';
 import './main.less';
 
@@ -31,7 +35,9 @@ const menu = (
 );
 
 class MainLayout extends React.Component {
-  state = {};
+  state = {
+    uploadViewCollapsed: false,
+  };
 
   componentWillMount() {
     console.log('componentWillMount');
@@ -51,7 +57,35 @@ class MainLayout extends React.Component {
     this.props.saveUserInfo(userInfo);
   }
 
+  renderUploadTask() {
+    return this.props.file.uploadTaskQueue.map(item => {
+      let progress = '';
+      switch (item.status) {
+        case 0:
+          progress = '等待上传';
+          break;
+        case 1:
+          progress = '正在上传';
+          break;
+        case 2:
+          progress = <span className="upload-success-icon"><CheckCircleOutlined /></span>
+          break;
+        case 3:
+          progress = <span>失败: {item.message} <CloseOutlined /></span>
+      }
 
+      if (item.status === 0) {
+        progress = '等待上传'
+      }
+      return <li className={`upload-status-${item.status}`}>
+        <span className="svg-icon"><Svg name={processFileExt(item.file.name.split('.').pop().toLowerCase())} /></span>
+        <span className="filename">{item.file.name}</span>
+        <span className="size">{renderSize(item.file.size)}</span>
+        <span className="target">{item.target.id === 0 ? '/' : item.target.name}</span>
+        <span className="progress">{progress} {item.instant === 1 ? <Tag color="green">秒传</Tag> : ''}</span>
+      </li>
+    })
+  }
 
   render() {
 
@@ -116,6 +150,32 @@ class MainLayout extends React.Component {
             </Switch>
           </Content>
         </Layout>
+        <div className={`upload-task-queue-wrap ${this.props.file.uploadTaskQueue.length > 0 ? '' : 'hide'}`}>
+          <div className="upload-task-queue-header">
+            <Row>
+              <Col span={20}>上传队列 </Col>
+              <Col style={{ textAlign: 'right', backgroundColor: '' }} span={4}>
+                <a onClick={(e) => { this.setState({ uploadViewCollapsed: !this.state.uploadViewCollapsed }); stopEventBubble(e) }}>
+                  {this.state.uploadViewCollapsed ? '查看' : '收起'}
+                </a>
+              </Col>
+            </Row>
+          </div>
+          <div>
+            <Alert
+              message={<div className="upload-task-queue-tip">
+                <span>上传中(<span>{this.props.file.uploadTaskQueue.filter(v => v.status <= 1).length}</span>) </span>
+                <span>已完成(<span>{this.props.file.uploadTaskQueue.filter(v => v.status === 2).length}</span>) </span>
+                <span>失败(<span>{this.props.file.uploadTaskQueue.filter(v => v.status === 3).length}</span>) </span>
+              </div>}
+            />
+          </div>
+          <div className={`upload-task-queue-list ${this.state.uploadViewCollapsed ? 'hidden' : ''}`}>
+            <ul>
+              {this.renderUploadTask()}
+            </ul>
+          </div>
+        </div>
       </Layout>
     );
   }

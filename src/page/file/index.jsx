@@ -1,10 +1,11 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Breadcrumb, Dropdown, Table, Button, Space, Upload, Menu, Row, Col, Alert, Tag } from 'antd';
-import { Modal, Form, Input, Radio } from 'antd';
+import { Breadcrumb, Dropdown, Table, Button, Space, Upload, Menu, Row, Col} from 'antd';
+import { Modal, Form, Input } from 'antd';
 import moment from 'moment';
-import { stopEventBubble, renderSize } from '../../util/util';
+import { stopEventBubble, renderSize, processFileExt } from '../../util/util';
 import { getFileList, mkdir } from '../../api/file';
+import { addUploadFileItem, deleteUploadFileItem} from '../../store/reducer/file/action';
 import Svg from '../../component/svg';
 import './index.less';
 import {
@@ -16,8 +17,6 @@ import {
   DeleteOutlined,
   StarOutlined,
   EditOutlined,
-  CheckCircleOutlined,
-  CloseOutlined,
 } from '@ant-design/icons';
 
 class FileList extends React.Component {
@@ -28,8 +27,7 @@ class FileList extends React.Component {
     loading: true,
     hasMore: 0,
     showMkdirModal: false,
-    uploadTaskQueue: [],
-    uploadViewCollapsed: true,
+
     dirStack: [
       {
         name: '全部文件',
@@ -47,17 +45,16 @@ class FileList extends React.Component {
     console.log('32333', data);
     let item = {
       file: data.file,
-      status: data.file.size === 0 ? 3 : 0,
-      message: data.file.size === 0 ? '文件内容为空' : '',
+      status: 0,
+      message: '',
       instant: 0,
       target: this.state.dirStack[this.state.dirStack.length-1],
     };
 
-    this.setState({uploadTaskQueue: [...this.state.uploadTaskQueue, item], uploadViewCollapsed: false})
+    this.props.addUploadFileItem(item);
   }
 
   onMkdirClick() {
-    console.log(this.state.uploadTaskQueue);
     this.setState({ showMkdirModal: true });
   }
 
@@ -208,37 +205,6 @@ class FileList extends React.Component {
     return `共${this.state.fileList.length}条数据，已全部加载`;
   }
 
-  renderUploadTask() {
-    return this.state.uploadTaskQueue.map(item => {
-      let progress = '';
-      switch (item.status) {
-        case 0:
-          progress = '等待上传';
-          break;
-        case 1:
-          progress = '正在上传';
-          break;
-        case 2:
-          progress = <span className="upload-success-icon"><CheckCircleOutlined/></span>
-          break;
-        case 3:
-          progress = <span>失败: {item.message} <CloseOutlined/></span>
-      }
-      
-      if (item.status === 0) {
-        progress = '等待上传'
-      }
-      return <li className={`upload-status-${item.status}`}>
-              <span className="svg-icon"><Svg name={item.file.name.split('.').pop().toLowerCase()}/></span>
-              <span className="filename">{item.file.name}</span>
-              <span className="size">{renderSize(item.file.size)}</span>
-              <span className="target">{item.target.id === 0 ? '/' : item.target.name}</span>
-              <span className="progress">{progress} {item.instant === 1 ? <Tag color="green">秒传</Tag> : ''}</span>
-            </li>
-    })
-  }
-
-
   render() {
     const { selectedRowKeys } = this.state;
     const rowSelection = {
@@ -301,6 +267,7 @@ class FileList extends React.Component {
         width: '30%',
         render: (text, record) => {
           let ext = record.is_dir ? 'dir' : (record.file?.ext || 'txt');
+          ext = processFileExt(ext);
           return (
             <span>
               <span className="file-list-icon">
@@ -397,50 +364,7 @@ class FileList extends React.Component {
 
       <MkdirForm />
 
-      <div className={`upload-task-queue-wrap ${this.state.uploadTaskQueue.length > 0 ? '' : 'hide'}`}>
-        <div className="upload-task-queue-header">
-          <Row>
-            <Col span={20}>上传队列 </Col>
-            <Col style={{ textAlign: 'right', backgroundColor: '' }} span={4}>
-              <a onClick={(e)=>{this.setState({uploadViewCollapsed:!this.state.uploadViewCollapsed}); stopEventBubble(e)}}>
-                {this.state.uploadViewCollapsed ? '查看' : '收起'}
-              </a>
-              </Col>
-          </Row>
-        </div>
-        <div>
-          <Alert
-            message={<div className="upload-task-queue-tip">
-              <span>上传中(<span>{this.state.uploadTaskQueue.filter(v => v.status <= 1).length}</span>) </span>
-              <span>已完成(<span>{this.state.uploadTaskQueue.filter(v => v.status === 2).length}</span>) </span>
-              <span>失败(<span>{this.state.uploadTaskQueue.filter(v => v.status === 3).length}</span>) </span>
-            </div>}
-          />
-        </div>
-        <div className={`upload-task-queue-list ${this.state.uploadViewCollapsed ? 'hidden': ''}`}>
-          <ul>
-            {this.renderUploadTask()}
-          </ul>
-          {/* <List
-            size="small"
-            // header={<div>Header</div>}
-            bordered
-            dataSource={this.state.uploadTaskQueue}
-            renderItem={
-              item => <List.Item>
-                <span title={item.file.name} className="upload-task-queue-filename">
-                  <Svg name={item.file.name.split('.').pop().toLowerCase()}/>
-                  {item.file.name}
-                </span>
-                <span>{renderSize(item.file.size)}</span>
-                <span>{item.status === 3 ? item.message : (item.status === 0 ? '等待上传' : (item.status === 2 ? '已上传' : '上传中'))}</span>
-                
-                  
-                </List.Item>
-            }
-          /> */}
-        </div>
-      </div>
+      
     </div>)
   }
 }
@@ -451,7 +375,8 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  // getFileList: () => dispatch(getFileList()),
+  addUploadFileItem: item => dispatch(addUploadFileItem(item)),
+  deleteUploadFileItem: fileId => dispatch(deleteUploadFileItem(fileId)),
 });
 
 export default connect(
