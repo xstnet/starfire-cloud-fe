@@ -7,5 +7,7 @@ export const renderSize = sizeRaw =>{
 
     let size = (sizeRaw/Math.pow(1024,index)).toFixed(2);
 
-    return `${size}${sizeUnit[index]}`;
+    size = isNaN(size) ? 0 : size;
+
+    return `${size}${sizeUnit[index] ?? 'B'}`;
 }
