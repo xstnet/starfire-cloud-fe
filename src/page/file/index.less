@@ -33,3 +33,49 @@
     }
 
 }
+
+
+.upload-task-queue-wrap {
+    width: 600px;
+    // height: 400px;
+    position: fixed;
+    bottom: 0;
+    right: 10px;
+    border: 1px solid #e2e2e2;
+    z-index: 9999;
+    background: white;
+    box-shadow: 0 0 10px #ccc;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+
+    .upload-task-queue-header {
+        padding: 10px 15px;
+
+    }
+
+    .upload-task-queue-tip {
+       > span {
+           margin-right: 10px;
+       }
+    }
+
+    .upload-task-queue-list {
+        height: 316px;
+        overflow-y: auto;
+     }
+
+     .upload-task-queue-list.hidden {
+        height: 0;
+        transition: height 0.5s;
+        overflow:hidden;
+     }
+
+    .ant-alert {
+        border: none;
+        background-color: #1890ff !important;
+        border-radius: 0 !important;
+        .ant-alert-message {
+            color: #fff !important;
+        }
+    }
+}

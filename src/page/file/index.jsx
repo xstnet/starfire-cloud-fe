@@ -1,10 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Breadcrumb, Dropdown, Table, Button, Space, Upload, Menu, Row, Col } from 'antd';
+import { Breadcrumb, Dropdown, Table, Button, Space, Upload, Menu, Row, Col, Alert, List } from 'antd';
 import { Modal, Form, Input, Radio } from 'antd';
 import moment from 'moment';
 import { stopEventBubble, renderSize } from '../../util/util';
-import { getFileList,mkdir } from '../../api/file';
+import { getFileList, mkdir } from '../../api/file';
 import Svg from '../../component/svg';
 import './index.less';
 import {
@@ -26,6 +26,8 @@ class FileList extends React.Component {
     loading: true,
     hasMore: 0,
     showMkdirModal: false,
+    uploadTaskQueue: [],
+    aaaa: false,
     dirStack: [
       {
         name: '全部文件',
@@ -39,31 +41,43 @@ class FileList extends React.Component {
     this.loadData(0);
   }
 
+  uploadFile = (data) => {
+    console.log('32333', data);
+    let item = {
+      file: data.file,
+      status: 0,
+      target: this.state.dirStack[this.state.dirStack.length-1],
+    };
+
+    this.setState({uploadTaskQueue: [...this.state.uploadTaskQueue, item]})
+  }
+
   onMkdirClick() {
-    this.setState({showMkdirModal: true});
+    console.log(this.state.uploadTaskQueue);
+    this.setState({ showMkdirModal: true });
   }
 
   handleMkdir = values => {
-      let parentId = this.state.dirStack[this.state.dirStack.length-1].id;
-      mkdir(parentId, values.name).then(response => {
-        this.setState({showMkdirModal: false, fileList:[response.data, ...this.state.fileList]});
-      })
+    let parentId = this.state.dirStack[this.state.dirStack.length - 1].id;
+    mkdir(parentId, values.name).then(response => {
+      this.setState({ showMkdirModal: false, fileList: [response.data, ...this.state.fileList] });
+    })
   }
 
   loadData = parentId => {
-    this.setState({loading: true});
+    this.setState({ loading: true });
     getFileList(parentId).then(response => {
-      this.setState({fileList: response.data.list, selectedRowKeys:[], loading:false, hasMore: response.data.more})
+      this.setState({ fileList: response.data.list, selectedRowKeys: [], loading: false, hasMore: response.data.more })
     })
   }
 
   onFilenameClick = (event, rowData) => {
     stopEventBubble(event);
-      if (rowData.is_dir) {
-        this.pushDirStack(rowData.id, rowData.name);
-        this.loadData(rowData.id);
-        return ;
-      }
+    if (rowData.is_dir) {
+      this.pushDirStack(rowData.id, rowData.name);
+      this.loadData(rowData.id);
+      return;
+    }
 
   }
 
@@ -118,8 +132,8 @@ class FileList extends React.Component {
     setTimeout(() => {
       let index = this.getFileIndexById(id);
 
-      this.state.fileList[index].name = 'rename........ success'+id;
-      this.setState({fileList: [...this.state.fileList]});
+      this.state.fileList[index].name = 'rename........ success' + id;
+      this.setState({ fileList: [...this.state.fileList] });
     }, 500);
   }
 
@@ -206,7 +220,7 @@ class FileList extends React.Component {
           title="创建新文件夹"
           okText="创建"
           cancelText="取消"
-          onCancel={() => this.setState({showMkdirModal: false})}
+          onCancel={() => this.setState({ showMkdirModal: false })}
           onOk={() => {
             form
               .validateFields()
@@ -256,9 +270,9 @@ class FileList extends React.Component {
           return (
             <span>
               <span className="file-list-icon">
-                <Svg name={ext}/>
+                <Svg name={ext} />
               </span>
-              <a className="file-list-title" onClick={e => this.onFilenameClick(e,record)}>{text}</a>
+              <a className="file-list-title" onClick={e => this.onFilenameClick(e, record)}>{text}</a>
             </span>
 
           )
@@ -282,7 +296,7 @@ class FileList extends React.Component {
             <Space>
               <a onClick={() => this.onShareClick(record.id)} title="分享" href="22"><ShareAltOutlined /></a>
               <a onClick={e => stopEventBubble(e)} title="下载" href="22"><DownloadOutlined /></a>
-              <Dropdown overlay={<FileOperation id={record.id}/>} trigger={['click']}>
+              <Dropdown overlay={<FileOperation id={record.id} />} trigger={['click']}>
                 <a title="更多" className="ant-dropdown-link" onClick={e => stopEventBubble(e)}>
                   <EllipsisOutlined />
                 </a>
@@ -312,7 +326,7 @@ class FileList extends React.Component {
     return (<div>
       <div className="action-bar">
         <Space>
-          <Upload>
+          <Upload multiple={true} showUploadList={false} customRequest={this.uploadFile.bind(this)}>
             <Button type="primary" icon={<UploadOutlined />} size="middle">
               上传
             </Button>
@@ -340,14 +354,41 @@ class FileList extends React.Component {
         </Col>
         <Col span={4}>
           <div className="table-summary-tip">
-              {this.renderTableSummaryTip()}
+            {this.renderTableSummaryTip()}
           </div>
         </Col>
       </Row>
-      
+
       <Table rowKey='id' onRow={this.onRow} size="middle" pagination={false} rowSelection={rowSelection} columns={columns} dataSource={this.state.fileList} />
 
-      <MkdirForm/>
+      <MkdirForm />
+
+      <div className="upload-task-queue-wrap">
+        <div className="upload-task-queue-header">
+          <Row>
+            <Col span={20}>上传队列 </Col>
+            <Col style={{ textAlign: 'right', backgroundColor: '' }} span={4}><span onClick={()=>this.setState({aaaa:!this.state.aaaa})}>关闭</span></Col>
+          </Row>
+        </div>
+        <div>
+          <Alert
+            message={<div className="upload-task-queue-tip">
+              <span>上传中(<span>{this.state.uploadTaskQueue.filter(v => v.status <= 1).length}</span>) </span>
+              <span>已完成(<span>{this.state.uploadTaskQueue.filter(v => v.status === 2).length}</span>) </span>
+              <span>失败(<span>{this.state.uploadTaskQueue.filter(v => v.status === 3).length}</span>) </span>
+            </div>}
+          />
+        </div>
+        <div className={`upload-task-queue-list ${this.state.aaaa ? 'hidden': ''}`}>
+          <List
+            size="small"
+            // header={<div>Header</div>}
+            bordered
+            dataSource={this.state.uploadTaskQueue}
+            renderItem={item => <List.Item>{item.file.name}</List.Item>}
+          />
+        </div>
+      </div>
     </div>)
   }
 }
