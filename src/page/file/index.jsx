@@ -292,8 +292,9 @@ class FileList extends React.Component {
       {
         title: '操作',
         dataIndex: 'action',
+        width: '200px',
         render: (text, record) => {
-          return <span onClick={e => stopEventBubble(e)}>
+          return <span className="table-filelist-action" onClick={e => stopEventBubble(e)}>
             <Space>
               <a onClick={() => this.onShareClick(record.id)} title="分享" href="22"><ShareAltOutlined /></a>
               <a onClick={e => stopEventBubble(e)} title="下载" href="22"><DownloadOutlined /></a>
