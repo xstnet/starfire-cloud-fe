@@ -294,7 +294,7 @@ Mock.mock(RegExp('/mock/api/v1/filemanager/mkdir'), "post", (options) => {
 
     let result = {
         "code": 0,
-        "message": "创建成功",
+        "message": "创建文件夹成功",
         "data": {
             "is_dir": 1,
             "name": params.name,
