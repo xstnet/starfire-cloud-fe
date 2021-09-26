@@ -4,7 +4,7 @@ import { Breadcrumb, Dropdown, Table, Button, Space, Upload, Menu, Row, Col} fro
 import { Modal, Form, Input } from 'antd';
 import moment from 'moment';
 import { stopEventBubble, renderSize, processFileExt } from '../../util/util';
-import { getFileList, mkdir } from '../../api/file';
+import { getFileList, mkdir, upload } from '../../api/file';
 import { addUploadFileItem, deleteUploadFileItem} from '../../store/reducer/file/action';
 import Svg from '../../component/svg';
 import './index.less';
@@ -51,7 +51,13 @@ class FileList extends React.Component {
       target: this.state.dirStack[this.state.dirStack.length-1],
     };
 
-    this.props.addUploadFileItem(item);
+    let formData = new FormData();
+    formData.append('name', 111);
+    formData.append('age', 222);
+    formData.append('file', data.file);
+    upload(formData).then(res => console.log('sssss', res)).catch(err => console.log('eeee', err));
+
+    // this.props.addUploadFileItem(item);
   }
 
   onMkdirClick() {

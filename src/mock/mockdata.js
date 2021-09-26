@@ -337,3 +337,17 @@ Mock.mock(RegExp('/mock/api/v1/filemanager/mkdir'), "post", (options) => {
 
     return Mock.mock(result);
 });
+
+// Mock.mock(RegExp('/1mock/api/v1/upload/file'), "post", (options) => {
+//     console.log('00000',options);
+
+//     let result = {
+//         "code": 0,
+//         "message": "333354353",
+//         "data": {},
+//         "cost": "1.3664ms"
+//     }
+
+
+//     return Mock.mock(result);
+// });

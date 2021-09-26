@@ -24,3 +24,7 @@ export const mkdir = (parentId, name) => {
 	let result =  Http.post('/filemanager/mkdir', {parent_id: parentId, name});
     return result;
 }
+
+export const upload = formData => {
+    return Http.upload('/upload/file', formData);
+}
