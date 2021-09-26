@@ -5,6 +5,7 @@ export const getFileList = 'GET_FILE_LIST';
 export const loadUploadFileQueue = 'LOAD_UPLOAD_FILE_QUEUE';
 export const addUploadFileItem = 'ADD_UPLOAD_FILE_QUEUE';
 export const deleteUploadFileQueue = 'DELETE_UPLOAD_FILE_QUEUE';
+export const updateUploadProgress = 'updateUploadProgress';
 // export const toggleUploadViewShow = 'TOGGLE_UPLOAD_VIEW_SHOW';
 
 

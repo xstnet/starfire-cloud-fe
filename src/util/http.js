@@ -68,7 +68,7 @@ class Http {
         })
     }
 
-    static upload(url, formData = {},) {
+    static upload(url, formData, callbackConfig) {
         return new Promise((resolve, reject) => {
             axios({
                 url,
@@ -76,11 +76,12 @@ class Http {
                 headers: {'Content-Type': 'multipart/form-data'},
                 onUploadProgress: function (progressEvent) { //原生获取上传进度的事件
                     console.log('progressEvent', progressEvent);
-                    // if (progressEvent.lengthComputable) {
-                    //     //属性lengthComputable主要表明总共需要完成的工作量和已经完成的工作是否可以被测量
-                    //     //如果lengthComputable为false，就获取不到progressEvent.total和progressEvent.loaded
-                    //     callback1(progressEvent);
-                    // }
+                    if (progressEvent.lengthComputable) {
+						console.log(callbackConfig)
+                        //属性lengthComputable主要表明总共需要完成的工作量和已经完成的工作是否可以被测量
+                        //如果lengthComputable为false，就获取不到progressEvent.total和progressEvent.loaded
+						callbackConfig.callback(callbackConfig.params, progressEvent)
+                    }
                 },
                 data: formData
             }).then(res => {

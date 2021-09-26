@@ -30,3 +30,9 @@ export const addUploadFileItem = item => ({
 // export const toggleUploadViewShow = () => ({
 //     type: Actions.addUploadFileItem,
 // });
+
+export const updateUploadProgress = (fileId, loaded) => ({
+    type: Actions.updateUploadProgress,
+    fileId,
+    loaded
+});

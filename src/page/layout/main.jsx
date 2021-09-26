@@ -71,7 +71,7 @@ class MainLayout extends React.Component {
                 from: '#108ee9',
                 to: '#87d068',
               }}
-              percent={40.9}
+              percent={item.loaded / item.file.size * 100}
               status="active"
             />
           </div>;
