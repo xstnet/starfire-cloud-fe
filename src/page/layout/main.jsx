@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Layout, Menu, Dropdown, Avatar, Row, Col, Alert,Tag } from 'antd';
+import { Layout, Menu, Dropdown, Avatar, Row, Col, Alert,Tag,Progress } from 'antd';
 import { Switch, Route } from 'react-router-dom';
 import { saveUserInfo } from '../../store/reducer/user/action';
 import { stopEventBubble, renderSize, processFileExt } from '../../util/util';
@@ -65,7 +65,16 @@ class MainLayout extends React.Component {
           progress = '等待上传';
           break;
         case 1:
-          progress = '正在上传';
+          progress = <div>
+            <Progress
+              strokeColor={{
+                from: '#108ee9',
+                to: '#87d068',
+              }}
+              percent={40.9}
+              status="active"
+            />
+          </div>;
           break;
         case 2:
           progress = <span className="upload-success-icon"><CheckCircleOutlined /></span>
@@ -78,11 +87,12 @@ class MainLayout extends React.Component {
         progress = '等待上传'
       }
       return <li className={`upload-status-${item.status}`}>
-        <span className="svg-icon"><Svg name={processFileExt(item.file.name.split('.').pop().toLowerCase())} /></span>
-        <span className="filename">{item.file.name}</span>
-        <span className="size">{renderSize(item.file.size)}</span>
-        <span className="target">{item.target.id === 0 ? '/' : item.target.name}</span>
-        <span className="progress">{progress} {item.instant === 1 ? <Tag color="green">秒传</Tag> : ''}</span>
+        <div className="svg-icon"><Svg name={processFileExt(item.file.name.split('.').pop().toLowerCase())} /></div>
+        <div className="filename">{item.file.name}</div>
+        <div className="size">{renderSize(item.file.size)}</div>
+        <div className="target">{item.target.id === 0 ? '/' : item.target.name}</div>
+        <div className="progress">{progress} {item.instant === 1 ? <Tag color="green">秒传</Tag> : ''}</div>
+        <span style={{clear:"both"}}></span>
       </li>
     })
   }

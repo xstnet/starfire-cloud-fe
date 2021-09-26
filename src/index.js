@@ -5,7 +5,7 @@ import {Provider} from 'react-redux';
 import App from './App';
 import store from './store';
 import reportWebVitals from './reportWebVitals';
-// import "./mock/mockdata";
+import "./mock/mockdata";
 
 // ReactDOM.render(
 //   <React.StrictMode>

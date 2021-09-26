@@ -125,12 +125,14 @@
                 border-bottom: 1px solid rgb(240, 237, 237);
                 line-height: 22px;
                 color: #666;
-                &>span {
-                    display: inline-block;
+                overflow: hidden;
+                &>div {
+                    // min-width: 100px;
                     margin-left: 15px;
                     white-space: nowrap;
                     overflow: hidden;
                     text-overflow: ellipsis;
+                    float: left;
                     
                 }
 
@@ -155,6 +157,11 @@
                     width: 120px;
                 }
 
+                .progress {
+                  width: 160px;
+                  padding: 0 10px 0 0;
+                }
+
                 .upload-success-icon {
                     font-size: 16px;
                     color: green;
@@ -166,13 +173,23 @@
                 }
             }
 
+            // 上传中
             li.upload-status-1 {
                 border-bottom-color: #1890ff;
                 .filename {
                     color: #1890ff;
-                    
                 }
+                .progress {
+                  width: 280px;
+                }
+                .target {
+                  display: none;
+                }
+                // .size {
+                //   width: 60px;
+                // }
             }
+            // 上传完成
             li.upload-status-2 {
                 .filename {
                     color: green;

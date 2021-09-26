@@ -45,7 +45,7 @@ class FileList extends React.Component {
     console.log('32333', data);
     let item = {
       file: data.file,
-      status: 0,
+      status: 1,
       message: '',
       instant: 0,
       target: this.state.dirStack[this.state.dirStack.length-1],
@@ -55,9 +55,9 @@ class FileList extends React.Component {
     formData.append('name', 111);
     formData.append('age', 222);
     formData.append('file', data.file);
-    upload(formData).then(res => console.log('sssss', res)).catch(err => console.log('eeee', err));
+    // upload(formData).then(res => console.log('sssss', res)).catch(err => console.log('eeee', err));
 
-    // this.props.addUploadFileItem(item);
+    this.props.addUploadFileItem(item);
   }
 
   onMkdirClick() {
@@ -191,7 +191,6 @@ class FileList extends React.Component {
 
   renderDirStack() {
     return this.state.dirStack.map(item => {
-      // return <Breadcrumb.Item key={item.id}><a href="javascript:void(0)" onClick={this.onBreadCrumbClick.bind(this,item.id)}>{item.name}</a></Breadcrumb.Item>
       return <Breadcrumb.Item key={item.id}><a onClick={(e) => this.onBreadCrumbClick(e, item.id)}>{item.name}</a></Breadcrumb.Item>
     })
   }
