@@ -56,21 +56,19 @@ class FileList extends React.Component {
     formData.append('name', 111);
     formData.append('age', 222);
     formData.append('file', data.file);
-    let callbackConfig = {
-      params: {
-        fileId: data.file.uid,
-        updateUploadProgress: this.props.updateUploadProgress,
-      },
-      callback: (params, progressEvent) => {
-        // this.props.updateUploadProgress(params.fileId, progressEvent.loaded);
-        // console.log(this.state, 353535);
-        params.updateUploadProgress(params.fileId, progressEvent.loaded);
-      }
+
+    let callback = progressEvent => {
+      console.log('ccccc', progressEvent);
+      this.props.updateUploadProgress(data.file.uid, progressEvent.loaded);
     }
 
     this.props.addUploadFileItem(item);
-    upload(formData, callbackConfig).then(res => console.log('sssss', res)).catch(err => console.log('eeee', err));
+    // upload(formData, callback).
+    //   then(res => this.uploadSuccess(res, data.file)).
+    //   catch(err => this.uploadFailed('系统错误', data.file));
   }
+
+
 
   onMkdirClick() {
     this.setState({ showMkdirModal: true });

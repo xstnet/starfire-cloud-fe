@@ -53,8 +53,23 @@ class MainLayout extends React.Component {
       return false;
     }
     // 加载用户信息
-
     this.props.saveUserInfo(userInfo);
+
+  }
+
+  uploadSuccess = (res, file) => {
+    if (!res || res.code === undefined) {
+      this.uploadFailed('系统错误', file);
+      return;
+    }
+    if (res.code !== 0) {
+      this.uploadFailed(res.message, file);
+    }
+    
+  }
+
+  uploadFailed = () => {
+    
   }
 
   renderUploadTask() {

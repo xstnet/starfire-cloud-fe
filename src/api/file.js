@@ -25,6 +25,6 @@ export const mkdir = (parentId, name) => {
     return result;
 }
 
-export const upload = (formData, callbackConfig) => {
-    return Http.upload('/upload/file', formData, callbackConfig);
+export const upload = (formData, callback) => {
+    return Http.upload('/upload/file', formData, callback);
 }

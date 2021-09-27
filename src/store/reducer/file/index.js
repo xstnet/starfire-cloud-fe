@@ -32,8 +32,10 @@ const File = (state = initState, action) => {
 			}
 		case Actions.updateUploadProgress:
 			let index = state.uploadTaskQueue.findIndex(v => v.file.uid === action.fileId);
+			if (index === -1) {
+				return state;
+			}
 			state.uploadTaskQueue[index].loaded = action.loaded;
-			console.log(333334444,index, action)
 			return {
 				...state,
 			}
