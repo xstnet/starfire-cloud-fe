@@ -6,7 +6,7 @@ const initState = {
 	},
 };
 
-const File = (state = initState, action) => {
+const User = (state = initState, action) => {
 	switch (action.type) {
 		// case Actions.getTodos:
 		// 	return state;
@@ -34,4 +34,4 @@ const File = (state = initState, action) => {
 	}
 }
 
-export default File;
+export default User;

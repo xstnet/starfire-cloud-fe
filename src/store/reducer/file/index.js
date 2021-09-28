@@ -2,8 +2,10 @@
 import * as Actions from '../../Actions';
 
 const initState = {
+	uploadFileList: [],
+	mapFileIdToIndex: {},
+	uploadFlag: 0,
 	uploadTaskQueue: [],
-	// uploadViewCollapsed: true,
 };
 
 const File = (state = initState, action) => {
@@ -16,8 +18,10 @@ const File = (state = initState, action) => {
 		case Actions.addUploadFileItem:
 			return {
 				...state,
-				uploadViewCollapsed: true,
-				uploadTaskQueue: [...state.uploadTaskQueue, action.item],
+				uploadFileList: [...state.uploadFileList, action.item],
+				uploadTaskQueue: [...state.uploadTaskQueue, action.item.file.uid],
+				
+				mapFileIdToIndex: {...state.mapFileIdToIndex, [action.item.file.uid]: state.uploadFileList.length},
 			}
 		// case Actions.toggleUploadViewShow:
 		// 	return {
@@ -25,17 +29,38 @@ const File = (state = initState, action) => {
 		// 		uploadViewCollapsed: !state.uploadViewCollapsed,
 		// 	}
 
-		case Actions.deleteUploadFileQueue:
-			return {
-				...state,
-				uploadTaskQueue: state.uploadTaskQueue.filter(item => item.file.uid !== action.fileId),
-			}
-		case Actions.updateUploadProgress:
-			let index = state.uploadTaskQueue.findIndex(v => v.file.uid === action.fileId);
-			if (index === -1) {
+		case Actions.delUploadFileItem:
+			// get Index
+			let fileIndex = state.mapFileIdToIndex[action.fileId];
+			if (!fileIndex) {
 				return state;
 			}
-			state.uploadTaskQueue[index].loaded = action.loaded;
+			// 更新其他的file index
+			for (var k in state.mapFileIdToIndex[action.fileId]) {
+				if (state.mapFileIdToIndex[k] > findIndex) {
+					state.mapFileIdToIndex[k] = findIndex - 1;
+				}
+			}
+			// 删除 map 关系
+			delete state.mapFileIdToIndex[action.fileId];
+
+			return {
+				...state,
+				// 更新上传队列
+				uploadTaskQueue: state.uploadTaskQueue.filter(v => v !== action.fileId),
+				mapFileIdToIndex: {...state.mapFileIdToIndex},
+				// 从上传文件列表中移除
+				uploadFileList: state.uploadFileList.splice(fileIndex, 1),
+			}
+
+		case Actions.updateUploadProgress:
+			// get Index
+			let fileIndex = state.mapFileIdToIndex[action.fileId];
+			if (!fileIndex) {
+				return state;
+			}
+			
+			state.uploadFileList[index].loaded = action.loaded;
 			return {
 				...state,
 			}
