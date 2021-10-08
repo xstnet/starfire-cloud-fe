@@ -63,20 +63,20 @@ class MainLayout extends React.Component {
 
   setUploadFlag = flag => {
     // 防止异步操作并发,先改值再说
-    this.state.uploadFlag = 1;
-    this.setState({uploadFlag: 1});
+    this.state.uploadFlag = flag;
+    this.setState({uploadFlag: flag});
   }
 
   // 选择文件上传后的处理
   onUpload = (data, target) => {
     console.log('32333', data);
     let item = {
-      file: data.file,
       status: UploadStatus.WAIT_UPLOAD,
       message: '',
       loaded: 0,
       instant: 0,
       target: target,
+      file: data.file,
     };
 
     this.props.addUploadFileItem(item);
@@ -90,13 +90,17 @@ class MainLayout extends React.Component {
 
   // 真正上传文件的处理
   handleUpload = () => {
-    this.setUploadFlag(1);
+    console.log('fffff', this.props.file.uploadTaskQueue);
     // 如果上传队列没有数据,延时一会看看
     if (this.props.file.uploadTaskQueue.length <= 0) {
-        setTimeout(() => this.handleUpload(), 100);
+        console.log('ddddd', this.props.file.uploadTaskQueue);
+        setTimeout(() => this.handleUpload(), 20);
         return;
     }
-    let uploadItem = this.props.file.uploadFileList[this.props.file.uploadTaskQueue[0]];
+    this.setUploadFlag(1);
+    let fileIndex = this.props.file.mapFileIdToIndex[this.props.file.uploadTaskQueue[0]];
+    let uploadItem = this.props.file.uploadFileList[fileIndex];
+    console.log(fileIndex, uploadItem);
     if (!uploadItem) {
       this.props.deleteUploadFileQueue(this.props.file.uploadTaskQueue[0]);
       return;
@@ -113,11 +117,10 @@ class MainLayout extends React.Component {
     this.props.updateUploadStatus(fileId, UploadStatus.UPLOADING);
 
     upload(formData, progressEvent => {
-      console.log('ccccc', progressEvent);
       this.props.updateUploadProgress(fileId, progressEvent.loaded);
     })
       .then(res => this.uploadSuccess(res, uploadItem.file))
-      .catch(err => this.uploadFailed('系统错误', uploadItem.file));
+      .catch(err => {console.log(err);this.uploadFailed('系统错误', uploadItem.file)});
   }
 
   uploadSuccess = (res, file) => {
@@ -137,24 +140,26 @@ class MainLayout extends React.Component {
         return;
       }
       this.handleUpload();
-    }, 100);
+    }, 20);
   }
 
   uploadFailed = (message, file) => {
     this.props.updateUploadStatus(file.uid, UploadStatus.FAILURE, message);
     this.props.deleteUploadFileQueue(file.uid);
+    
     setTimeout(() => {
+      console.log('uploadTaskQueue3',this.props.file.uploadTaskQueue);
       if (this.props.file.uploadTaskQueue.length <= 0) {
         this.setUploadFlag(0);
         console.log('3333334444');
         return;
       }
       this.handleUpload();
-    }, 100);
+    }, 20);
   }
 
   renderUploadTask() {
-    return this.props.file.uploadFileList.map(item => {
+    return this.props.file.uploadFileList.map((item, index) => {
       let progress = '';
       switch (item.status) {
         case UploadStatus.WAIT_UPLOAD:
@@ -177,12 +182,13 @@ class MainLayout extends React.Component {
           break;
         case UploadStatus.FAILURE:
           progress = <span>失败: {item.message} <CloseOutlined /></span>
+          break;
       }
 
       if (item.status === 0) {
         progress = '等待上传'
       }
-      return <li className={`upload-status-${item.status}`}>
+      return <li key={index} className={`upload-status-${item.status}`}>
         <div className="svg-icon"><Svg name={processFileExt(item.file.name.split('.').pop().toLowerCase())} /></div>
         <div className="filename">{item.file.name}</div>
         <div className="size">{renderSize(item.file.size)}</div>
@@ -252,7 +258,7 @@ class MainLayout extends React.Component {
               {/* <Route path='/recycle/bin' component={RecycleBinList}/> */}
               {/* <Route path='/share' component={Share}/> */}
               <Route path='/' >
-                <FileList {...this.props} onUpload={this.onUpload} />
+                <FileList key="filelist" {...this.props} onUpload={this.onUpload} />
               </Route>
             </Switch>
           </Content>

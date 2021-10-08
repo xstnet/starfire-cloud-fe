@@ -13,8 +13,8 @@ import { Route, Switch } from 'react-router-dom';
 const App = () => (
   <div className="App">
     <Switch>
-      <Route key={1} path="/login" component={Login} />
-      <Route key={2} path="/" component={MainLayout} />
+      <Route key="loginxxx" path="/login" component={Login} />
+      <Route key="xxx" path="/" component={MainLayout} />
     </Switch>
   </div>
 );

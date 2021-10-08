@@ -5,7 +5,6 @@ const initState = {
     // 所有上传文件的列表
     uploadFileList: [],
     mapFileIdToIndex: {},
-    uploadFlag: 0,
     // 上传队列
     uploadTaskQueue: [],
 };
@@ -33,7 +32,7 @@ const File = (state = initState, action) => {
         case Actions.deleteUploadFileItem:
             // get Index
             fileIndex = state.mapFileIdToIndex[action.fileId];
-            if (!fileIndex) {
+            if (fileIndex === undefined || fileIndex < 0) {
                 return state;
             }
             // 更新其他的file index
@@ -87,19 +86,20 @@ const File = (state = initState, action) => {
         case Actions.updateUploadProgress:
             // get Index
             fileIndex = state.mapFileIdToIndex[action.fileId];
-            if (!fileIndex) {
+            if (fileIndex === undefined || fileIndex < 0) {
                 return state;
             }
-
             state.uploadFileList[fileIndex].loaded = action.loaded;
+
             return {
                 ...state,
+                uploadFileList: [...state.uploadFileList],
             }
             // 取消上传
         case Actions.cancleUpload:
             // get Index
             fileIndex = state.mapFileIdToIndex[action.fileId];
-            if (!fileIndex) {
+            if (fileIndex === undefined || fileIndex < 0) {
                 return state;
             }
 
