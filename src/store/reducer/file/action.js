@@ -17,7 +17,14 @@ export const getFileList = fileList => ({
 //     type: Actions.loadUploadFileQueue,
 // });
 
+// 删除上传列表,包括上传队列
 export const deleteUploadFileItem = fileId => ({
+    type: Actions.deleteUploadFileItem,
+    fileId,
+});
+
+// 删除上传队列
+export const deleteUploadFileQueue = fileId => ({
     type: Actions.deleteUploadFileQueue,
     fileId,
 });
@@ -31,8 +38,24 @@ export const addUploadFileItem = item => ({
 //     type: Actions.addUploadFileItem,
 // });
 
+// 更新进度条
 export const updateUploadProgress = (fileId, loaded) => ({
     type: Actions.updateUploadProgress,
     fileId,
-    loaded
+    loaded,
+});
+
+// 更新上传文件状态
+export const updateUploadStatus = (fileId, status, message = '') => ({
+    type: Actions.updateUploadStatus,
+    fileId,
+    status,
+    message,
+});
+
+// 秒传
+export const setInstant = (fileId, status) => ({
+    type: Actions.setInstant,
+    fileId,
+    status,
 });

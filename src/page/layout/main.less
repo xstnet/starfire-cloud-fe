@@ -173,8 +173,16 @@
                 }
             }
 
+            @status_init: 0;
+            @status_wait_upload: 1;
+            @status_prepare_upload: 2;
+            @status_uploading: 20;
+            @status_success: 30;
+            @status_cancel: 90;
+            @status_failure: 91;
+
             // 上传中
-            li.upload-status-1 {
+            li.upload-status-@{status_uploading} {
                 border-bottom-color: #1890ff;
                 .filename {
                     color: #1890ff;
@@ -190,12 +198,12 @@
                 // }
             }
             // 上传完成
-            li.upload-status-2 {
+            li.upload-status-@{status_success} {
                 .filename {
                     color: green;
                 }
             }
-            li.upload-status-3 {
+            li.upload-status-@{status_failure},li.upload-status-@{status_cancel} {
                 color: #e82424;
             }
         }

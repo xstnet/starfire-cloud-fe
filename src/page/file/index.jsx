@@ -5,7 +5,6 @@ import { Modal, Form, Input } from 'antd';
 import moment from 'moment';
 import { stopEventBubble, renderSize, processFileExt } from '../../util/util';
 import { getFileList, mkdir, upload } from '../../api/file';
-import { addUploadFileItem, deleteUploadFileItem, updateUploadProgress} from '../../store/reducer/file/action';
 import Svg from '../../component/svg';
 import './index.less';
 import {
@@ -39,33 +38,11 @@ class FileList extends React.Component {
 
   componentDidMount() {
     this.loadData(0);
+    console.log(2222222, this.props);
   }
 
-  uploadFile = (data) => {
-    console.log('32333', data);
-    let item = {
-      file: data.file,
-      status: 1,
-      message: '',
-      loaded: 0,
-      instant: 0,
-      target: this.state.dirStack[this.state.dirStack.length-1],
-    };
-
-    let formData = new FormData();
-    formData.append('name', 111);
-    formData.append('age', 222);
-    formData.append('file', data.file);
-
-    let callback = progressEvent => {
-      console.log('ccccc', progressEvent);
-      this.props.updateUploadProgress(data.file.uid, progressEvent.loaded);
-    }
-
-    this.props.addUploadFileItem(item);
-    // upload(formData, callback).
-    //   then(res => this.uploadSuccess(res, data.file)).
-    //   catch(err => this.uploadFailed('系统错误', data.file));
+  onUpload = (data) => {
+    this.props.onUpload(data, this.state.dirStack[this.state.dirStack.length-1]);
   }
 
 
@@ -343,14 +320,14 @@ class FileList extends React.Component {
     return (<div>
       <div className="action-bar">
         <Space>
-          <Upload multiple={true} showUploadList={false} customRequest={this.uploadFile.bind(this)}>
+          <Upload multiple={true} showUploadList={false} customRequest={this.onUpload.bind(this)}>
             <Button type="primary" icon={<UploadOutlined />} size="middle">
               上传
             </Button>
           </Upload>
-          <Button type="primary" onClick={() => this.onMkdirClick()} icon={<FolderAddOutlined />} size="middle">
+          {/* <Button type="primary" onClick={() => this.onMkdirClick()} icon={<FolderAddOutlined />} size="middle">
             新建
-          </Button>
+          </Button> */}
 
           <div className={`action-file-bar ${this.state.selectedRowKeys.length > 0 ? '' : 'hide'}`}>
             <Button className={`${this.state.selectedRowKeys.length === 1 ? '' : 'hide'}`} type="primary" icon={<DownloadOutlined />} size="middle">下载 </Button>
@@ -391,9 +368,7 @@ const mapStateToProps = (state, ownProps) => ({
 });
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
-  addUploadFileItem: item => dispatch(addUploadFileItem(item)),
-  deleteUploadFileItem: fileId => dispatch(deleteUploadFileItem(fileId)),
-  updateUploadProgress: (fileId, loaded) => dispatch(updateUploadProgress(fileId, loaded)),
+
 });
 
 export default connect(

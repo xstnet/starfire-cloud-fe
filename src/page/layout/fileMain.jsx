@@ -1,12 +1,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Layout, Menu, Dropdown, Avatar, Row, Col, Alert,Tag,Progress } from 'antd';
+import { Layout, Menu, Dropdown, Avatar, Row, Col, Alert,Tag,Progress, Upload } from 'antd';
 import { Switch, Route } from 'react-router-dom';
 import { saveUserInfo } from '../../store/reducer/user/action';
 import { stopEventBubble, renderSize, processFileExt } from '../../util/util';
 import Cache from '../../util/cache';
 import FileList from '../file/index';
 import Svg from '../../component/svg';
+import {UploadStatus} from '../../config/config';
+import { addUploadFileItem, deleteUploadFileItem, updateUploadProgress, updateUploadStatus, setInstant, deleteUploadFileQueue} from '../../store/reducer/file/action';
+import { upload } from '../../api/file';
 import {
   PieChartOutlined,
   UserOutlined,
@@ -37,6 +40,7 @@ const menu = (
 class MainLayout extends React.Component {
   state = {
     uploadViewCollapsed: false,
+    uploadFlag: 0,
   };
 
   componentWillMount() {
@@ -57,6 +61,65 @@ class MainLayout extends React.Component {
 
   }
 
+  setUploadFlag = flag => {
+    // 防止异步操作并发,先改值再说
+    this.state.uploadFlag = 1;
+    this.setState({uploadFlag: 1});
+  }
+
+  // 选择文件上传后的处理
+  onUpload = (data, target) => {
+    console.log('32333', data);
+    let item = {
+      file: data.file,
+      status: UploadStatus.WAIT_UPLOAD,
+      message: '',
+      loaded: 0,
+      instant: 0,
+      target: target,
+    };
+
+    this.props.addUploadFileItem(item);
+
+    // 如果已经在上传了, 不做操作
+    if (this.state.uploadFlag) {
+      return;
+    }
+    this.handleUpload();
+  }
+
+  // 真正上传文件的处理
+  handleUpload = () => {
+    this.setUploadFlag(1);
+    // 如果上传队列没有数据,延时一会看看
+    if (this.props.file.uploadTaskQueue.length <= 0) {
+        setTimeout(() => this.handleUpload(), 100);
+        return;
+    }
+    let uploadItem = this.props.file.uploadFileList[this.props.file.uploadTaskQueue[0]];
+    if (!uploadItem) {
+      this.props.deleteUploadFileQueue(this.props.file.uploadTaskQueue[0]);
+      return;
+    }
+    let fileId = uploadItem.file.uid;
+
+    // todo 秒传
+
+    let formData = new FormData();
+    formData.append('target_id', uploadItem.target.id);
+    formData.append('file', uploadItem.file);
+    
+    // 修改状态,准备上传
+    this.props.updateUploadStatus(fileId, UploadStatus.UPLOADING);
+
+    upload(formData, progressEvent => {
+      console.log('ccccc', progressEvent);
+      this.props.updateUploadProgress(fileId, progressEvent.loaded);
+    })
+      .then(res => this.uploadSuccess(res, uploadItem.file))
+      .catch(err => this.uploadFailed('系统错误', uploadItem.file));
+  }
+
   uploadSuccess = (res, file) => {
     if (!res || res.code === undefined) {
       this.uploadFailed('系统错误', file);
@@ -66,20 +129,38 @@ class MainLayout extends React.Component {
       this.uploadFailed(res.message, file);
     }
     
+    this.props.deleteUploadFileQueue(file.uid);
+    this.props.updateUploadStatus(file.uid, UploadStatus.SUCCESS);
+    setTimeout(() => {
+      if (this.props.file.uploadTaskQueue.length <= 0) {
+        this.setUploadFlag(0);
+        return;
+      }
+      this.handleUpload();
+    }, 100);
   }
 
-  uploadFailed = () => {
-    
+  uploadFailed = (message, file) => {
+    this.props.updateUploadStatus(file.uid, UploadStatus.FAILURE, message);
+    this.props.deleteUploadFileQueue(file.uid);
+    setTimeout(() => {
+      if (this.props.file.uploadTaskQueue.length <= 0) {
+        this.setUploadFlag(0);
+        console.log('3333334444');
+        return;
+      }
+      this.handleUpload();
+    }, 100);
   }
 
   renderUploadTask() {
-    return this.props.file.uploadTaskQueue.map(item => {
+    return this.props.file.uploadFileList.map(item => {
       let progress = '';
       switch (item.status) {
-        case 0:
+        case UploadStatus.WAIT_UPLOAD:
           progress = '等待上传';
           break;
-        case 1:
+        case UploadStatus.UPLOADING:
           progress = <div>
             <Progress
               strokeColor={{
@@ -91,10 +172,10 @@ class MainLayout extends React.Component {
             />
           </div>;
           break;
-        case 2:
+        case UploadStatus.SUCCESS:
           progress = <span className="upload-success-icon"><CheckCircleOutlined /></span>
           break;
-        case 3:
+        case UploadStatus.FAILURE:
           progress = <span>失败: {item.message} <CloseOutlined /></span>
       }
 
@@ -116,7 +197,7 @@ class MainLayout extends React.Component {
 
     return (
       <Layout className="main" style={{ minHeight: '100vh' }}>
-        <Sider className="side-left" theme="light" >
+        {/* <Sider className="side-left" theme="light" >
           <div className="logo">
             星火云盘
           </div>
@@ -139,27 +220,26 @@ class MainLayout extends React.Component {
               回收站
             </Menu.Item>
           </Menu>
-        </Sider>
+        </Sider> */}
         <Layout className="side-right">
           <Header className="header">
             <div className="header-left fl">
-              <Dropdown overlay={menu}>
+              {/* <Dropdown overlay={menu}>
                 <a className="ant-dropdown-link2" onClick={e => e.preventDefault()}>
                   本地存储 <DownOutlined />
                 </a>
-              </Dropdown>
+              </Dropdown> */}
 
             </div>
             <div className="header-right fr">
               <ul>
                 <li className="fl">
-                  <Dropdown overlay={menu}>
+                  {/* <Dropdown overlay={menu}>
                     <div>
                       <Avatar size={50} icon={<UserOutlined />} />
-                      {/* 醉丶春风 <DownOutlined /> */}
                       {this.props.user.userInfo.nickname} <DownOutlined />
                     </div>
-                  </Dropdown>
+                  </Dropdown> */}
                 </li>
               </ul>
             </div>
@@ -171,11 +251,13 @@ class MainLayout extends React.Component {
               {/* <Route path='/favorite' component={Favorite}/> */}
               {/* <Route path='/recycle/bin' component={RecycleBinList}/> */}
               {/* <Route path='/share' component={Share}/> */}
-              <Route path='/' component={FileList} />
+              <Route path='/' >
+                <FileList {...this.props} onUpload={this.onUpload} />
+              </Route>
             </Switch>
           </Content>
         </Layout>
-        <div className={`upload-task-queue-wrap ${this.props.file.uploadTaskQueue.length > 0 ? '' : 'hide'}`}>
+        <div className={`upload-task-queue-wrap ${this.props.file.uploadFileList.length > 0 ? '' : 'hide'}`}>
           <div className="upload-task-queue-header">
             <Row>
               <Col span={20}>上传队列 </Col>
@@ -189,9 +271,9 @@ class MainLayout extends React.Component {
           <div>
             <Alert
               message={<div className="upload-task-queue-tip">
-                <span>上传中(<span>{this.props.file.uploadTaskQueue.filter(v => v.status <= 1).length}</span>) </span>
-                <span>已完成(<span>{this.props.file.uploadTaskQueue.filter(v => v.status === 2).length}</span>) </span>
-                <span>失败(<span>{this.props.file.uploadTaskQueue.filter(v => v.status === 3).length}</span>) </span>
+                <span>上传中(<span>{this.props.file.uploadFileList.filter(v => v.status <= 20).length}</span>) </span>
+                <span>已完成(<span>{this.props.file.uploadFileList.filter(v => v.status === 30).length}</span>) </span>
+                <span>失败(<span>{this.props.file.uploadFileList.filter(v => v.status >= 90).length}</span>) </span>
               </div>}
             />
           </div>
@@ -213,6 +295,12 @@ const mapStateToProps = (state, ownProps) => ({
 
 const mapDispatchToProps = (dispatch, ownProps) => ({
   saveUserInfo: userInfo => dispatch(saveUserInfo(userInfo)),
+  addUploadFileItem: item => dispatch(addUploadFileItem(item)),
+  deleteUploadFileItem: fileId => dispatch(deleteUploadFileItem(fileId)),
+  updateUploadProgress: (fileId, loaded) => dispatch(updateUploadProgress(fileId, loaded)),
+  updateUploadStatus: (fileId, status, message = '') => dispatch(updateUploadStatus(fileId, status, message)),
+  setInstant: (fileId, status) => dispatch(setInstant(fileId, status)),
+  deleteUploadFileQueue: (fileId) => dispatch(deleteUploadFileQueue(fileId)),
 });
 
 export default connect(

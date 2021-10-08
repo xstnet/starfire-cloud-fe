@@ -11,12 +11,15 @@ const initState = {
 };
 
 const File = (state = initState, action) => {
+    let fileIndex = undefined;
     switch (action.type) {
         // case Actions.loadUploadFileQueue:
         // 	return {
         // 		...state,
         // 		uploadTaskQueue: Cache.getUploadFileQueue(),
         // 	}
+
+        // push 上传队列
         case Actions.addUploadFileItem:
             return {
                 ...state,
@@ -25,23 +28,18 @@ const File = (state = initState, action) => {
 
                 mapFileIdToIndex: { ...state.mapFileIdToIndex, [action.item.file.uid]: state.uploadFileList.length },
             }
-        // case Actions.toggleUploadViewShow:
-        // 	return {
-        // 		...state,
-        // 		uploadViewCollapsed: !state.uploadViewCollapsed,
-        // 	}
 
-        // 删除上传列表的文件
-        case Actions.delUploadFileItem:
+        // 删除上传列表的文件, 同时删除上传队列
+        case Actions.deleteUploadFileItem:
             // get Index
-            let fileIndex = state.mapFileIdToIndex[action.fileId];
+            fileIndex = state.mapFileIdToIndex[action.fileId];
             if (!fileIndex) {
                 return state;
             }
             // 更新其他的file index
             for (var k in state.mapFileIdToIndex[action.fileId]) {
-                if (state.mapFileIdToIndex[k] > findIndex) {
-                    state.mapFileIdToIndex[k] = findIndex - 1;
+                if (state.mapFileIdToIndex[k] > fileIndex) {
+                    state.mapFileIdToIndex[k] = fileIndex - 1;
                 }
             }
             // 删除 map 关系
@@ -56,17 +54,61 @@ const File = (state = initState, action) => {
                 uploadFileList: state.uploadFileList.splice(fileIndex, 1),
             }
 
+        // 删除上传队列
+        case Actions.deleteUploadFileQueue:
+            return {
+                ...state,
+                // 更新上传队列
+                uploadTaskQueue: state.uploadTaskQueue.filter(v => v !== action.fileId),
+            }
+
+        // 更新上传文件状态
+        case Actions.updateUploadStatus:
+            fileIndex = state.mapFileIdToIndex[action.fileId];
+            state.uploadFileList[fileIndex].status = action.status;
+            state.uploadFileList[fileIndex].message = action.message;
+            return {
+                ...state,
+                // 更新上传队列
+                uploadFileList: [...state.uploadFileList],
+            }
+        // 秒传
+        case Actions.setInstant:
+            fileIndex = state.mapFileIdToIndex[action.fileId];
+            state.uploadFileList[fileIndex].status = action.status;
+            state.uploadFileList[fileIndex].instant = 1;
+            return {
+                ...state,
+                // 更新上传队列
+                uploadTaskQueue: state.uploadTaskQueue.filter(v => v !== action.fileId),
+                uploadFileList: [...state.uploadFileList],
+            }
         // 更新上传进度条
         case Actions.updateUploadProgress:
             // get Index
-            let fileIndex = state.mapFileIdToIndex[action.fileId];
+            fileIndex = state.mapFileIdToIndex[action.fileId];
             if (!fileIndex) {
                 return state;
             }
 
-            state.uploadFileList[index].loaded = action.loaded;
+            state.uploadFileList[fileIndex].loaded = action.loaded;
             return {
                 ...state,
+            }
+            // 取消上传
+        case Actions.cancleUpload:
+            // get Index
+            fileIndex = state.mapFileIdToIndex[action.fileId];
+            if (!fileIndex) {
+                return state;
+            }
+
+            state.uploadFileList[fileIndex].loaded = 0;
+            state.uploadFileList[fileIndex].status = 3;
+            state.uploadFileList[fileIndex].message = '已取消';
+            return {
+                ...state,
+                uploadTaskQueue: state.uploadTaskQueue.filter(v => v !== action.fileId),
             }
         default:
             return state;
