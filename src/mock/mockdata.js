@@ -75,7 +75,7 @@ Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
         'caocaocao.cpp',
         'fuckfuck.c',
         '测试文件.jsx',
-        'codinginggggggggggggggggggg.ts',
+        'codinginggggggggggggggggggg.ts'
     ];
     let dirnames = [
         '新建文件夹1',
@@ -112,7 +112,7 @@ Mock.mock(RegExp('/api/v1/filemanager/file'), "get", (options) => {
         'books',
         '测试文件夹1',
         '歌曲列表',
-        '秘密文件',
+        '秘密文件'
     ];
 
     let exts = [

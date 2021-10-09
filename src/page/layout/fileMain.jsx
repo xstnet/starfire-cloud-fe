@@ -114,7 +114,7 @@ class MainLayout extends React.Component {
     formData.append('file', uploadItem.file);
     
     // 修改状态,准备上传
-    this.props.updateUploadStatus(fileId, UploadStatus.UPLOADING);
+    this.props.updateUploadStatus(fileId, UploadStatus.PREPARE_UPLOAD);
 
     upload(formData, progressEvent => {
       this.props.updateUploadProgress(fileId, progressEvent.loaded);

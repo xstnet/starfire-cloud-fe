@@ -16,7 +16,8 @@ const Config = {
     CODE_RELOGIN: 27149,
 
     // BASE_URL: "/api/v1",
-    BASE_URL: "/mock/api/v1",
+    // BASE_URL: "/mock/api/v1",
+    BASE_URL: "http://mockjs.docway.net/mock/1irdCmLBvF2",
 }
 
 export default Config;

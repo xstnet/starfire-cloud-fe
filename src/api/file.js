@@ -28,3 +28,8 @@ export const mkdir = (parentId, name) => {
 export const upload = (formData, callback) => {
     return Http.upload('/upload/file', formData, callback);
 }
+
+// 秒传
+export const instant = md5 => {
+    return Http.post('/upload/instant', {md5}, {showMsg: false});
+}
