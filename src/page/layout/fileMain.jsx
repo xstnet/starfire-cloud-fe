@@ -263,7 +263,7 @@ class MainLayout extends React.Component {
   render() {
 
     return (
-      <Layout className="main" style={{ minHeight: '100vh' }}>
+      <Layout className="main">
         <Sider className="side-left" theme="light" >
           <div className="logo">
             星火云盘

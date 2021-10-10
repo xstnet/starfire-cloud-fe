@@ -26,7 +26,9 @@ class FileList extends React.Component {
     fileList: [],
     loading: true,
     hasMore: 0,
+    page: 1,
     showMkdirModal: false,
+    tableWrapRef: null,
 
     dirStack: [
       {
@@ -59,11 +61,22 @@ class FileList extends React.Component {
     })
   }
 
-  loadData = parentId => {
+  // 加载文件列表
+  loadData = (parentId, nextPage = false) => {
     this.setState({ loading: true });
-    let result = getFileList(parentId);
+
+    let params = {
+      parent_id: parentId,
+      page: this.state.page,
+    }
+
+    let result = getFileList(params);
     result.then(response => {
-      this.setState({ fileList: response.data.list, selectedRowKeys: [], loading: false, hasMore: response.data.more })
+      // 设置当前页码，如果是还有下一页就加1，否则就重置为1
+      let page = response.data.more ? this.state.page + 1 : 1;
+      // 设置当前文件列表，如果是加载下一页就合并元素，否则就直接使用接口返回数据
+      let fileList = nextPage ? [...this.state.fileList, ...response.data.list] : response.data.list;
+      this.setState({ fileList, selectedRowKeys: [], loading: false, hasMore: response.data.more, page })
     });
     return result;
   }
@@ -164,6 +177,19 @@ class FileList extends React.Component {
 
   handleMove = ids => {
     console.log(ids);
+  }
+
+  onScrollEvent = () => {
+    if (this.state.tableWrapRef.scrollTop + this.state.tableWrapRef.clientHeight + 100 >= this.state.tableWrapRef.scrollHeight) {
+      if (this.state.hasMore === 0 || this.state.loading) {
+        return;
+      }
+      console.log(9999, this.state.tableWrapRef);
+      this.setState({ loading: true }, () => {
+        let parentId = this.state.dirStack[this.state.dirStack.length - 1].id;
+        this.loadData(parentId, true);
+      });
+    }
   }
 
   // onRow={record => {
@@ -317,7 +343,8 @@ class FileList extends React.Component {
       </Menu>
     )
 
-    return (<div>
+    return (
+    <div>
       <div className="action-bar">
         <Space>
           <Upload multiple={true} showUploadList={false} customRequest={this.onUpload.bind(this)}>
@@ -353,7 +380,9 @@ class FileList extends React.Component {
         </Col>
       </Row>
 
-      <Table rowKey='id' loading={this.state.loading} onRow={this.onRow} size="middle" pagination={false} rowSelection={rowSelection} columns={columns} dataSource={this.state.fileList} />
+      <div className="file-list-wrap" ref={ref => this.state.tableWrapRef = ref} onScroll={this.onScrollEvent}>
+        <Table rowKey='id' loading={this.state.loading} onRow={this.onRow} size="middle" pagination={false} rowSelection={rowSelection} columns={columns} dataSource={this.state.fileList} />
+      </div>
 
       <MkdirForm />
 

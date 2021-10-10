@@ -16,8 +16,8 @@ import * as Actions from '../store/Actions';
 // }
 
 // 获取文件列表
-export const getFileList = parentId => {
-	let result =  Http.get('/filemanager/file', {parent_id: parentId});
+export const getFileList = params => {
+	let result =  Http.get('/filemanager/file', params);
     return result;
 }
 
