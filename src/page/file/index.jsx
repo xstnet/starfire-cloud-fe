@@ -343,15 +343,35 @@ class FileList extends React.Component {
       </Menu>
     )
 
+    const menu1 = (
+      <Menu>
+        <Menu.Item key="1">
+          <Upload multiple={true} showUploadList={false} customRequest={this.onUpload.bind(this)}>
+            上传文件
+          </Upload>
+        </Menu.Item>
+        <Menu.Item key="2">
+          <Upload directory showUploadList={false} customRequest={this.onUpload.bind(this)}>
+            上传文件夹
+          </Upload>
+        </Menu.Item>
+      </Menu>
+    );
+
     return (
     <div>
       <div className="action-bar">
         <Space>
-          <Upload multiple={true} showUploadList={false} customRequest={this.onUpload.bind(this)}>
-            <Button type="primary" icon={<UploadOutlined />} size="middle">
-              上传
-            </Button>
-          </Upload>
+          
+        <Dropdown.Button type="primary" overlay={menu1}>
+            <Upload multiple={true} showUploadList={false} customRequest={this.onUpload.bind(this)}>
+              {/* <Button type="primary" icon={<UploadOutlined />} size="middle">
+                上传
+              </Button> */}
+              <span className="color-white"><UploadOutlined /> 上传</span> 
+            </Upload>
+        </Dropdown.Button>
+          
           <Button type="primary" onClick={() => this.onMkdirClick()} icon={<FolderAddOutlined />} size="middle">
             新建
           </Button>
