@@ -353,7 +353,7 @@ class FileList extends React.Component {
         </Col>
       </Row>
 
-      <Table rowKey='id' onRow={this.onRow} size="middle" pagination={false} rowSelection={rowSelection} columns={columns} dataSource={this.state.fileList} />
+      <Table rowKey='id' loading={this.state.loading} onRow={this.onRow} size="middle" pagination={false} rowSelection={rowSelection} columns={columns} dataSource={this.state.fileList} />
 
       <MkdirForm />
 
