@@ -4,6 +4,7 @@ import { Breadcrumb, Dropdown, Table, Button, Space, Upload, Menu, Row, Col} fro
 import { Modal, Form, Input } from 'antd';
 import moment from 'moment';
 import { stopEventBubble, renderSize, processFileExt } from '../../util/util';
+import { md5File } from '../../util/md5';
 import { getFileList, mkdir, upload } from '../../api/file';
 import Svg from '../../component/svg';
 import './index.less';
@@ -60,16 +61,17 @@ class FileList extends React.Component {
 
   loadData = parentId => {
     this.setState({ loading: true });
-    getFileList(parentId).then(response => {
+    let result = getFileList(parentId);
+    result.then(response => {
       this.setState({ fileList: response.data.list, selectedRowKeys: [], loading: false, hasMore: response.data.more })
-    })
+    });
+    return result;
   }
 
   onFilenameClick = (event, rowData) => {
     stopEventBubble(event);
     if (rowData.is_dir) {
-      this.pushDirStack(rowData.id, rowData.name);
-      this.loadData(rowData.id);
+      this.loadData(rowData.id).then(() => this.pushDirStack(rowData.id, rowData.name));
       return;
     }
 
@@ -111,9 +113,7 @@ class FileList extends React.Component {
       return;
     }
 
-    this.loadData(id);
-
-    this.setState({ dirStack: this.state.dirStack.slice(0, index + 1) });
+    this.loadData(id).then(() => this.setState({ dirStack: this.state.dirStack.slice(0, index + 1) }));
   }
 
   getFileIndexById = id => {
@@ -325,9 +325,9 @@ class FileList extends React.Component {
               上传
             </Button>
           </Upload>
-          {/* <Button type="primary" onClick={() => this.onMkdirClick()} icon={<FolderAddOutlined />} size="middle">
+          <Button type="primary" onClick={() => this.onMkdirClick()} icon={<FolderAddOutlined />} size="middle">
             新建
-          </Button> */}
+          </Button>
 
           <div className={`action-file-bar ${this.state.selectedRowKeys.length > 0 ? '' : 'hide'}`}>
             <Button className={`${this.state.selectedRowKeys.length === 1 ? '' : 'hide'}`} type="primary" icon={<DownloadOutlined />} size="middle">下载 </Button>

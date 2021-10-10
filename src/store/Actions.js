@@ -14,6 +14,8 @@ export const updateUploadStatus = 'updateUploadFileStatus';
 export const setInstant = 'setInstant';
 
 export const updateUploadProgress = 'updateUploadProgress';
+// 更新文件md5
+export const updateFileMd5 = 'updateFileMd5';
 export const cancleUpload = 'cancleUpload';
 // export const toggleUploadViewShow = 'TOGGLE_UPLOAD_VIEW_SHOW';
 

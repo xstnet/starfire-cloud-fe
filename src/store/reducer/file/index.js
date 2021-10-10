@@ -12,12 +12,6 @@ const initState = {
 const File = (state = initState, action) => {
     let fileIndex = undefined;
     switch (action.type) {
-        // case Actions.loadUploadFileQueue:
-        // 	return {
-        // 		...state,
-        // 		uploadTaskQueue: Cache.getUploadFileQueue(),
-        // 	}
-
         // push 上传队列
         case Actions.addUploadFileItem:
             return {
@@ -71,6 +65,14 @@ const File = (state = initState, action) => {
                 // 更新上传队列
                 uploadFileList: [...state.uploadFileList],
             }
+		// 更新文件md5
+		case Actions.updateFileMd5:
+			fileIndex = state.mapFileIdToIndex[action.fileId];
+			state.uploadFileList[fileIndex].md5 = action.md5;
+			return {
+				...state,
+				uploadFileList: [...state.uploadFileList],
+			}
         // 秒传
         case Actions.setInstant:
             fileIndex = state.mapFileIdToIndex[action.fileId];

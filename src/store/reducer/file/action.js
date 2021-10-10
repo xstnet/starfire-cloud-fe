@@ -45,6 +45,13 @@ export const updateUploadProgress = (fileId, loaded) => ({
     loaded,
 });
 
+// 更新文件md5
+export const updateFileMd5 = (fileId, md5) => ({
+    type: Actions.updateFileMd5,
+    fileId,
+    md5,
+});
+
 // 更新上传文件状态
 export const updateUploadStatus = (fileId, status, message = '') => ({
     type: Actions.updateUploadStatus,

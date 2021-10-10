@@ -4,12 +4,13 @@ import { Layout, Menu, Dropdown, Avatar, Row, Col, Alert,Tag,Progress, Upload } 
 import { Switch, Route } from 'react-router-dom';
 import { saveUserInfo } from '../../store/reducer/user/action';
 import { stopEventBubble, renderSize, processFileExt } from '../../util/util';
+import { md5File } from '../../util/md5';
 import Cache from '../../util/cache';
 import FileList from '../file/index';
 import Svg from '../../component/svg';
 import {UploadStatus} from '../../config/config';
-import { addUploadFileItem, deleteUploadFileItem, updateUploadProgress, updateUploadStatus, setInstant, deleteUploadFileQueue} from '../../store/reducer/file/action';
-import { upload } from '../../api/file';
+import { addUploadFileItem, deleteUploadFileItem, updateUploadProgress, updateUploadStatus, setInstant, deleteUploadFileQueue, updateFileMd5} from '../../store/reducer/file/action';
+import { upload, instant, preUpload } from '../../api/file';
 import {
   PieChartOutlined,
   UserOutlined,
@@ -75,11 +76,14 @@ class MainLayout extends React.Component {
       message: '',
       loaded: 0,
       instant: 0,
+      md5: '',
       target: target,
       file: data.file,
     };
 
     this.props.addUploadFileItem(item);
+    // 生成文件md5
+    this.generateFileMd5(data.file, data.file.uid);
 
     // 如果已经在上传了, 不做操作
     if (this.state.uploadFlag) {
@@ -88,42 +92,90 @@ class MainLayout extends React.Component {
     this.handleUpload();
   }
 
+  // 异步生成文件md5
+  generateFileMd5 = (file, fileId) => {
+    md5File(file).then(md5 => {
+      this.props.updateFileMd5(fileId, md5);
+    })
+  }
+
   // 真正上传文件的处理
   handleUpload = () => {
-    console.log('fffff', this.props.file.uploadTaskQueue);
     // 如果上传队列没有数据,延时一会看看
     if (this.props.file.uploadTaskQueue.length <= 0) {
         console.log('ddddd', this.props.file.uploadTaskQueue);
-        setTimeout(() => this.handleUpload(), 20);
+        setTimeout(() => this.handleUpload(), 10);
         return;
     }
     this.setUploadFlag(1);
+
+    // 获取文件索引
     let fileIndex = this.props.file.mapFileIdToIndex[this.props.file.uploadTaskQueue[0]];
+    // 获取梁明上传文件
     let uploadItem = this.props.file.uploadFileList[fileIndex];
-    console.log(fileIndex, uploadItem);
+
     if (!uploadItem) {
       this.props.deleteUploadFileQueue(this.props.file.uploadTaskQueue[0]);
       return;
     }
     let fileId = uploadItem.file.uid;
 
-    // todo 秒传
-
-    let formData = new FormData();
-    formData.append('target_id', uploadItem.target.id);
-    formData.append('file', uploadItem.file);
-    
     // 修改状态,准备上传
-    this.props.updateUploadStatus(fileId, UploadStatus.PREPARE_UPLOAD);
+    if (uploadItem.status !== UploadStatus.PREPARE_UPLOAD) {
+      this.props.updateUploadStatus(fileId, UploadStatus.PREPARE_UPLOAD);
+    }
 
-    upload(formData, progressEvent => {
-      this.props.updateUploadProgress(fileId, progressEvent.loaded);
+    // 确认文件md5是否已生成
+    if (uploadItem.md5 === '') {
+      // 还没有生成完成，等一会再来
+      setTimeout(() => {
+        console.log("等待文件md5生成。。。。");
+        this.handleUpload();
+      }, 1000);
+      return;
+    }
+
+    // 预上传
+    preUpload(uploadItem.md5)
+    .then((res) => {
+      // 文件已存在，直接进入秒传流程
+      if (res.data.exist === 1) {
+        this.instantUpload(res.data.md5, uploadItem);
+        return;
+      }
+
+      // 开始上传
+      let formData = new FormData();
+      formData.append('target_id', uploadItem.target.id);
+      formData.append('file', uploadItem.file);
+
+      // 修改状态，上传中
+      this.props.updateUploadStatus(fileId, UploadStatus.UPLOADING);
+
+      upload(formData, progressEvent => {
+        console.log('vvvvv', progressEvent.loaded);
+        this.props.updateUploadProgress(fileId, progressEvent.loaded);
+      })
+        .then(res => this.uploadSuccess(res, uploadItem.file))
+        .catch(err => { console.log(err); this.uploadFailed('系统错误', uploadItem.file) });
+
     })
-      .then(res => this.uploadSuccess(res, uploadItem.file))
-      .catch(err => {console.log(err);this.uploadFailed('系统错误', uploadItem.file)});
+    // 预上传失败
+    .catch(res => {
+      let message = res.message ?? '上传失败';
+      this.uploadFailed(message, uploadItem.file);
+      return;
+    })
   }
 
-  uploadSuccess = (res, file) => {
+  instantUpload = (md5, uploadItem) => {
+    instant(md5, uploadItem.target.id, uploadItem.file.name)
+    .then((res) => this.uploadSuccess(res, uploadItem.file, 1))
+    .catch(res => this.uploadFailed(res.message ?? '上传失败', uploadItem.file))
+    return;
+  }
+
+  uploadSuccess = (res, file, instant = 0) => {
     if (!res || res.code === undefined) {
       this.uploadFailed('系统错误', file);
       return;
@@ -133,14 +185,20 @@ class MainLayout extends React.Component {
     }
     
     this.props.deleteUploadFileQueue(file.uid);
-    this.props.updateUploadStatus(file.uid, UploadStatus.SUCCESS);
+    if (instant === 0) {
+      // 普通上传
+      this.props.updateUploadStatus(file.uid, UploadStatus.SUCCESS);
+    } else {
+      // 秒传
+      this.props.setInstant(file.uid, UploadStatus.SUCCESS);
+    }
     setTimeout(() => {
       if (this.props.file.uploadTaskQueue.length <= 0) {
         this.setUploadFlag(0);
         return;
       }
       this.handleUpload();
-    }, 20);
+    }, 1);
   }
 
   uploadFailed = (message, file) => {
@@ -155,7 +213,7 @@ class MainLayout extends React.Component {
         return;
       }
       this.handleUpload();
-    }, 20);
+    }, 1);
   }
 
   renderUploadTask() {
@@ -164,6 +222,9 @@ class MainLayout extends React.Component {
       switch (item.status) {
         case UploadStatus.WAIT_UPLOAD:
           progress = '等待上传';
+          break;
+        case UploadStatus.PREPARE_UPLOAD:
+          progress = '准备上传...';
           break;
         case UploadStatus.UPLOADING:
           progress = <div>
@@ -181,7 +242,7 @@ class MainLayout extends React.Component {
           progress = <span className="upload-success-icon"><CheckCircleOutlined /></span>
           break;
         case UploadStatus.FAILURE:
-          progress = <span>失败: {item.message} <CloseOutlined /></span>
+          progress = <span>{item.message} <CloseOutlined /></span>
           break;
       }
 
@@ -203,7 +264,7 @@ class MainLayout extends React.Component {
 
     return (
       <Layout className="main" style={{ minHeight: '100vh' }}>
-        {/* <Sider className="side-left" theme="light" >
+        <Sider className="side-left" theme="light" >
           <div className="logo">
             星火云盘
           </div>
@@ -226,26 +287,26 @@ class MainLayout extends React.Component {
               回收站
             </Menu.Item>
           </Menu>
-        </Sider> */}
+        </Sider>
         <Layout className="side-right">
           <Header className="header">
             <div className="header-left fl">
-              {/* <Dropdown overlay={menu}>
+              <Dropdown overlay={menu}>
                 <a className="ant-dropdown-link2" onClick={e => e.preventDefault()}>
                   本地存储 <DownOutlined />
                 </a>
-              </Dropdown> */}
+              </Dropdown>
 
             </div>
             <div className="header-right fr">
               <ul>
                 <li className="fl">
-                  {/* <Dropdown overlay={menu}>
+                  <Dropdown overlay={menu}>
                     <div>
                       <Avatar size={50} icon={<UserOutlined />} />
                       {this.props.user.userInfo.nickname} <DownOutlined />
                     </div>
-                  </Dropdown> */}
+                  </Dropdown>
                 </li>
               </ul>
             </div>
@@ -307,6 +368,8 @@ const mapDispatchToProps = (dispatch, ownProps) => ({
   updateUploadStatus: (fileId, status, message = '') => dispatch(updateUploadStatus(fileId, status, message)),
   setInstant: (fileId, status) => dispatch(setInstant(fileId, status)),
   deleteUploadFileQueue: (fileId) => dispatch(deleteUploadFileQueue(fileId)),
+  // 更新文件md5
+  updateFileMd5: (fileId, md5) => dispatch(updateFileMd5(fileId, md5)),
 });
 
 export default connect(
