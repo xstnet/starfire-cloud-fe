@@ -77,7 +77,9 @@ class FileList extends React.Component {
       // 设置当前文件列表，如果是加载下一页就合并元素，否则就直接使用接口返回数据
       let fileList = nextPage ? [...this.state.fileList, ...response.data.list] : response.data.list;
       this.setState({ fileList, selectedRowKeys: [], loading: false, hasMore: response.data.more, page })
-    });
+    }).catch(res => {
+      this.setState({ loading: false});
+    })
     return result;
   }
 

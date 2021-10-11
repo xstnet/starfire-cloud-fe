@@ -7,10 +7,17 @@ const CancelToken = axios.CancelToken;
 const source = CancelToken.source();
 
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
-axios.defaults.headers.common['Authorization'] = 'Bearer ' + Cache.getToken();
 axios.defaults.headers.post['Content-Type'] = 'application/json; charset=UTF-8';
 axios.defaults.baseURL = Config.BASE_URL;
 
+// 请求拦截
+axios.interceptors.request.use(config  => {
+    config.headers.authorization = 'Bearer ' + Cache.getToken();
+    return config;
+});
+
+
+// 响应拦截
 axios.interceptors.response.use(response => {
     if (response.headers['Authorization']) {
         Cache.set('token', response.headers['Authorization']);
@@ -35,7 +42,13 @@ class Http {
                 params: params,
                 cancelToken: source.token
             }).then(res => {
-                resolve(res.data)
+                if (res.data.code !== Config.CODE_OK) {
+                    message.error(res.data.message);
+                    reject(res.data);
+                    return;
+                }
+
+                resolve(res.data);
             }).catch(err => {
                 reject(err)
             })

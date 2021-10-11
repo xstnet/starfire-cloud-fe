@@ -140,7 +140,7 @@ class MainLayout extends React.Component {
     .then((res) => {
       // 文件已存在，直接进入秒传流程
       if (res.data.exist === 1) {
-        this.instantUpload(res.data.md5, uploadItem);
+        this.instantUpload(uploadItem.md5, uploadItem);
         return;
       }
 

@@ -17,7 +17,7 @@ import * as Actions from '../store/Actions';
 
 // 获取文件列表
 export const getFileList = params => {
-	let result =  Http.get('/filemanager/file', params);
+	let result =  Http.get('/filemanager/list', params);
     return result;
 }
 
