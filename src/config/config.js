@@ -17,8 +17,8 @@ const Config = {
 
     // BASE_URL: "/api/v1",
     // BASE_URL: "/mock/api/v1",
-    // BASE_URL: "http://mockjs.docway.net/mock/1irdCmLBvF2",
-    BASE_URL: "http://127.0.0.1:9999/api/v1",
+    BASE_URL: "http://mockjs.docway.net/mock/1irdCmLBvF2",
+    // BASE_URL: "http://127.0.0.1:9999/api/v1",
 }
 
 export default Config;

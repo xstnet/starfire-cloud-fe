@@ -42,6 +42,8 @@ class MainLayout extends React.Component {
   state = {
     uploadViewCollapsed: false,
     uploadFlag: 0,
+    // 子页面 文件列表的ref
+    childFileListRef: false,
   };
 
   componentWillMount() {
@@ -175,13 +177,13 @@ class MainLayout extends React.Component {
     return;
   }
 
-  uploadSuccess = (res, file, instant = 0) => {
-    if (!res || res.code === undefined) {
+  uploadSuccess = (response, file, instant = 0) => {
+    if (!response || response.code === undefined) {
       this.uploadFailed('系统错误', file);
       return;
     }
-    if (res.code !== 0) {
-      this.uploadFailed(res.message, file);
+    if (response.code !== 0) {
+      this.uploadFailed(response.message, file);
     }
     
     this.props.deleteUploadFileQueue(file.uid);
@@ -192,6 +194,11 @@ class MainLayout extends React.Component {
       // 秒传
       this.props.setInstant(file.uid, UploadStatus.SUCCESS);
     }
+    // 添加上传后的文件到文件列表中
+    if (this.state.childFileListRef !== false) {
+      this.state.childFileListRef.appendFile(response.data);
+    }
+
     setTimeout(() => {
       if (this.props.file.uploadTaskQueue.length <= 0) {
         this.setUploadFlag(0);
@@ -214,6 +221,14 @@ class MainLayout extends React.Component {
       }
       this.handleUpload();
     }, 1);
+  }
+
+  setChildFileListRef = (ref, status = 'init') => {
+    if (status === 'remove') {
+      this.setState({childFileListRef: false});
+      return;
+    }
+    this.setState({childFileListRef: ref});
   }
 
   renderUploadTask() {
@@ -319,7 +334,7 @@ class MainLayout extends React.Component {
               {/* <Route path='/recycle/bin' component={RecycleBinList}/> */}
               {/* <Route path='/share' component={Share}/> */}
               <Route path='/' >
-                <FileList key="filelist" {...this.props} onUpload={this.onUpload} />
+                <FileList key="filelist" {...this.props} setChildFileListRef={this.setChildFileListRef}  onUpload={this.onUpload} />
               </Route>
             </Switch>
           </Content>

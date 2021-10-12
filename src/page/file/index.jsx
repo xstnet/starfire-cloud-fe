@@ -41,13 +41,17 @@ class FileList extends React.Component {
 
   componentDidMount() {
     this.loadData(0);
-    console.log(2222222, this.props);
+    this.props.setChildFileListRef(this, 'init');
+  }
+
+  componentWillUnmount() {
+    console.log('componentWillUnmount');
+    this.props.setChildFileListRef(false, 'remove');
   }
 
   onUpload = (data) => {
-    this.props.onUpload(data, this.state.dirStack[this.state.dirStack.length-1]);
+    this.props.onUpload(data, this.getCurrentTargetDir());
   }
-
 
 
   onMkdirClick() {
@@ -55,10 +59,19 @@ class FileList extends React.Component {
   }
 
   handleMkdir = values => {
-    let parentId = this.state.dirStack[this.state.dirStack.length - 1].id;
+    let parentId = this.getCurrentTargetDir().id;
     mkdir(parentId, values.name).then(response => {
       this.setState({ showMkdirModal: false, fileList: [response.data, ...this.state.fileList] });
     })
+  }
+
+  appendFile = (fileItem) => {
+    let currentDir = this.getCurrentTargetDir();
+    // 只有属于当前目录的才能追加进去
+    if (currentDir.id !== fileItem.parent_id) {
+      return;
+    }
+    this.setState({fileList: [...this.state.fileList, fileItem]});
   }
 
   // 加载文件列表
@@ -67,13 +80,14 @@ class FileList extends React.Component {
 
     let params = {
       parent_id: parentId,
-      page: this.state.page,
+      page: nextPage ? this.state.page : 1, // 如果是加载新目录，页码等于1
     }
 
     let result = getFileList(params);
     result.then(response => {
-      // 设置当前页码，如果是还有下一页就加1，否则就重置为1
+      // 设置当前页码，如果还有下一页就加1，否则就重置为1
       let page = response.data.more ? this.state.page + 1 : 1;
+
       // 设置当前文件列表，如果是加载下一页就合并元素，否则就直接使用接口返回数据
       let fileList = nextPage ? [...this.state.fileList, ...response.data.list] : response.data.list;
       this.setState({ fileList, selectedRowKeys: [], loading: false, hasMore: response.data.more, page })
@@ -129,6 +143,10 @@ class FileList extends React.Component {
     }
 
     this.loadData(id).then(() => this.setState({ dirStack: this.state.dirStack.slice(0, index + 1) }));
+  }
+
+  getCurrentTargetDir = () => {
+    return this.state.dirStack[this.state.dirStack.length - 1];
   }
 
   getFileIndexById = id => {
@@ -188,7 +206,7 @@ class FileList extends React.Component {
       }
       console.log(9999, this.state.tableWrapRef);
       this.setState({ loading: true }, () => {
-        let parentId = this.state.dirStack[this.state.dirStack.length - 1].id;
+        let parentId = this.getCurrentTargetDir().id;
         this.loadData(parentId, true);
       });
     }
