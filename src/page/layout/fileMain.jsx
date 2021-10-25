@@ -71,7 +71,7 @@ class MainLayout extends React.Component {
   }
 
   // 选择文件上传后的处理
-  onUpload = (data, target) => {
+  onUpload = (data, target, isDir = 0) => {
     console.log('32333', data);
     let item = {
       status: UploadStatus.WAIT_UPLOAD,

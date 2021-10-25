@@ -52,6 +52,11 @@ class FileList extends React.Component {
   onUpload = (data) => {
     this.props.onUpload(data, this.getCurrentTargetDir());
   }
+  
+  
+  onDirUpload = (data) => {
+    this.props.onUpload(data, this.getCurrentTargetDir(), 1);
+  }
 
 
   onMkdirClick() {
@@ -371,7 +376,7 @@ class FileList extends React.Component {
           </Upload>
         </Menu.Item>
         <Menu.Item key="2">
-          <Upload directory showUploadList={false} customRequest={this.onUpload.bind(this)}>
+          <Upload directory showUploadList={false} customRequest={this.onDirUpload.bind(this)}>
             上传文件夹
           </Upload>
         </Menu.Item>
